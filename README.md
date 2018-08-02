@@ -1,16 +1,16 @@
 # liqdev
-Swiss army knife for Liquidity development.
+Swiss army knife for Liquidity development. Built for OSX, but could probably be adapted to any unix easily.
 
 ## Installation
 
 Simply `npm install -g --production https://github.com/1protocol/liqdev.git`. This will install the `liqdev` command globally (as well as some other shell scripts with the `liqdev-` prefix, but you should only use these scripts via `liqdev` itself).
 
 ## Usage
-* `liqdev setup`
-* `liqdev sandbox` - runs sandbox tezos node, client, and baker (in foreground)
-* `liqdev build`
-* `liqdev test`
-* `liqdev deploy`
+* `liqdev setup` - Download & build tezos and liquidity. Do some minor but important configuration.
+* `liqdev sandbox` - Run sandbox tezos node, client, and baker (in foreground)
+* `liqdev build` - Compile contracts in file watcher mode
+* `liqdev test` - Build & test contracts
+* `liqdev deploy` - Deploy a contract to a tezos network.
 
 ## Development
 
