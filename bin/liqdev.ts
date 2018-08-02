@@ -12,13 +12,15 @@ program
     process.exit(1)
   })
 
-program
   .command('setup')
-  .description('install Liquidity and Tezos')
-  // Decide whether to use global or local scripts based on command name.
-  .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
+    .description('install Liquidity and Tezos')
+    // Decide whether to use global or local scripts based on command name.
+    .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
 
-program
+  .command('sandbox')
+    .description('run sandbox tezos network (node, client, and baker)')
+    .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/sandbox.sh'))
+
   .parse(process.argv)
 
 // Or maybe this?
