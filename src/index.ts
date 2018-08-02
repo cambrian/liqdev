@@ -1,2 +1,0 @@
-// If require()d.
-export = {}

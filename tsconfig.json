@@ -17,7 +17,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
-    "paths": {},
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ]
+    },
     "pretty": true,
     "rootDir": "./",
     "strict": true,

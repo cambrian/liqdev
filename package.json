@@ -2,7 +2,6 @@
   "name": "liqdev",
   "version": "0.0.1",
   "description": "Swiss army knife for Liquidity development.",
-  "main": "build/src/index.js",
   "bin": {
     "liqdev": "dist/liqdev.js",
     "liqdev-setup": "lib/setup.sh",
@@ -41,6 +40,10 @@
     "chokidar": "^2.0.4",
     "commander": "^2.16.0",
     "eztz": "git+https://github.com/whaatt/eztz.git",
+    "module-alias": "^2.1.0",
     "shelljs": "^0.8.2"
+  },
+  "_moduleAliases": {
+    "@src": "build/src"
   }
 }

@@ -65,3 +65,5 @@ build/
 
 # Liquidity output
 liquidity/
+*.liq
+*.liq.tz
