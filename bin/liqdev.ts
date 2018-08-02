@@ -19,7 +19,7 @@ program
 
   .command('sandbox')
     .description('run sandbox tezos network (node, client, and baker)')
-    .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/sandbox.sh'))
+    .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-sandbox' : './lib/sandbox.sh'))
 
   .parse(process.argv)
 
