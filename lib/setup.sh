@@ -16,6 +16,8 @@ sed -i '.bak' -e 's/\~rc3//g' tezos/scripts/version.sh
 make -C tezos build-deps
 eval $(opam env --set-switch --switch=$PWD/tezos)
 make -C tezos
+# Configure tezos-sandboxed-node to allow cors requests
+sed -i '.bak' -e 's/"$expected_connections"/"$expected_connections" --cors-origin=*/g' tezos/src/bin_node/tezos-sandboxed-node.sh
 # We need another ocaml switch to build liquidity
 opam switch create 4.06.1
 eval $(opam env --set-switch --switch=4.06.1)
