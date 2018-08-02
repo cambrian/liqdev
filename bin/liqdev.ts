@@ -21,6 +21,10 @@ program
     .description('run sandbox tezos network (node, client, and baker)')
     .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-sandbox' : './lib/sandbox.sh'))
 
+  .command('deploy')
+    .description('deploy contract to any of the tezos networks')
+    .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-deploy' : './lib/deploy.sh'))
+
   .parse(process.argv)
 
 // Or maybe this?

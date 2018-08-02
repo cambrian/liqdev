@@ -6,7 +6,8 @@
   "bin": {
     "liqdev": "dist/liqdev.js",
     "liqdev-setup": "lib/setup.sh",
-    "liqdev-sandbox": "lib/sandbox.sh"
+    "liqdev-sandbox": "lib/sandbox.sh",
+    "liqdev-deploy": "lib/deploy.sh"
   },
   "scripts": {
     "build": "rm -rf build && tsc && mkdir -p dist && cp build/bin/liqdev.js dist && chmod +x dist/liqdev.js",
