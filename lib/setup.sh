@@ -6,7 +6,9 @@ fi
 brew tap ocaml/ocaml
 brew install git opam@2 libsodium libffi pandoc
 opam init --no-setup --enable-shell-hook
-mkdir ~/.liqdev && cd ~/.liqdev
+rm -rf ~/.liqdev
+mkdir ~/.liqdev
+cd ~/.liqdev
 git clone https://github.com/OCamlPro/liquidity.git
 cd liquidity
 make clone-tezos

@@ -15,7 +15,7 @@ program
 program
   .command('setup')
   .description('install Liquidity and Tezos')
-  // Decide whether to use global or local scripts based on command name.
+  // Decides whether to use global or local scripts based on command name.
   .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
 
 program
