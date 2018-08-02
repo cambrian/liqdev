@@ -1,0 +1,33 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "inlineSourceMap": true,
+    "jsx": "react",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "listFiles": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "build",
+    "paths": {},
+    "pretty": true,
+    "strict": true,
+    "target": "es6",
+    "traceResolution": false
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "bin/**/*.ts",
+    "test/**/*.ts"
+  ]
+}

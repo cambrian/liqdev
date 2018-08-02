@@ -1,0 +1,20 @@
+{
+  "files.eol": "\n",
+  "tslint.enable": true,
+  "tslint.autoFixOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.rulers": [
+    100
+  ],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 100,
+  "editor.wrappingIndent": "indent",
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.formatOnPaste": true,
+  "typescript.format.insertSpaceAfterConstructor": true,
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "typescript.format.insertSpaceAfterTypeAssertion": true,
+  "autoimport.useSemiColon": false
+}
