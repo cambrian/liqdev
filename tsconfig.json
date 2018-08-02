@@ -19,6 +19,7 @@
     "outDir": "build",
     "paths": {},
     "pretty": true,
+    "rootDir": "./",
     "strict": true,
     "target": "es6",
     "traceResolution": false
