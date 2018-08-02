@@ -5,7 +5,8 @@
   "main": "build/src/index.js",
   "bin": {
     "liqdev": "dist/liqdev.js",
-    "liqdev-setup": "lib/setup.sh"
+    "liqdev-setup": "lib/setup.sh",
+    "liqdev-sandbox": "lib/sandbox.sh"
   },
   "scripts": {
     "build": "rm -rf build && tsc && mkdir -p dist && cp build/bin/liqdev.js dist && chmod +x dist/liqdev.js",
