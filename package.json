@@ -2,14 +2,15 @@
   "name": "liqdev",
   "version": "0.0.1",
   "description": "Swiss army knife for Liquidity development.",
+  "main": "build/src/index.js",
   "bin": {
-    "liqdev": "./build/bin/liqdev.js"
+    "liqdev": "dist/liqdev.js",
+    "liqdev-setup": "lib/setup.sh"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf build && tsc && mkdir -p dist && cp build/bin/liqdev.js dist && chmod +x dist/liqdev.js",
     "lint": "tslint --project tsconfig.json --format stylish",
-    "test": "echo",
-    "watch": "tsc -w"
+    "test": "echo"
   },
   "repository": {
     "type": "git",
@@ -28,9 +29,15 @@
   "homepage": "https://github.com/1protocol/liqdev#readme",
   "devDependencies": {
     "@types/node": "^10.5.5",
+    "@types/shelljs": "^0.8.0",
     "mocha": "^5.2.0",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^7.1.0",
     "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "commander": "^2.16.0",
+    "eztz": "git+https://github.com/whaatt/eztz.git",
+    "shelljs": "^0.8.2"
   }
 }
