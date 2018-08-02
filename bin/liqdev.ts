@@ -15,12 +15,13 @@ program
 program
   .command('setup')
   .description('install Liquidity and Tezos')
-  .action(() => shell.exec('liqdev-setup'))
+  // Decide whether to use global or local scripts based on command name.
+  .action((cmd) => shell.exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
 
 program
   .parse(process.argv)
 
-// Can this be chained as well?
+// Or maybe this?
 if (program.args.length < 1) {
   console.error('No task provided.\nSee --help for available tasks.', program.args.join(' '))
   process.exit(1)
