@@ -21,14 +21,14 @@ program
   .command('setup')
   .description('install Liquidity and Tezos')
   // Decide whether to use global or local scripts based on command name.
-  .action((cmd) => exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
+  .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
 
 // TODO: Make commands error gracefully if setup has not been run?
 
 program
   .command('sandbox')
   .description('run sandbox Tezos network (node, client, and baker)')
-  .action((cmd) => exec(process.argv[0] === 'liqdev' ? 'liqdev-sandbox' : './lib/sandbox.sh'))
+  .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-sandbox' : './lib/sandbox.sh'))
 
 program
   .command('build [contract]')
@@ -36,6 +36,11 @@ program
   .action((contract, args) => contract
     ? Build.compile(contract, exec)
     : Build.startWatcher(watch, exec))
+
+program
+  .command('deploy')
+  .description('deploy contract to any of the tezos networks')
+  .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-deploy' : './lib/deploy.sh'))
 
 program
   .parse(process.argv)
