@@ -3,10 +3,10 @@ if ! [ -x "$(command -v brew)" ]; then
   echo 'Installing Homebrew.'
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
-brew tap ocaml
 brew tap ocaml/ocaml
 brew install git opam@2 libsodium libffi pandoc
 opam init --no-setup --enable-shell-hook
+mkdir ~/.liqdev && cd ~/.liqdev
 git clone https://github.com/OCamlPro/liquidity.git
 cd liquidity
 make clone-tezos
