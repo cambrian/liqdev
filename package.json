@@ -36,6 +36,8 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@types/chokidar": "^1.7.5",
+    "chokidar": "^2.0.4",
     "commander": "^2.16.0",
     "eztz": "git+https://github.com/whaatt/eztz.git",
     "shelljs": "^0.8.2"
