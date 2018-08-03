@@ -25,6 +25,7 @@ const verifySetup = () => {
 
 // Some default paths/constants; in the future these may be options.
 const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
+const builder = Build
 
 program
   .version('0.0.1', '-v, --version')
@@ -52,14 +53,14 @@ program
   .description('compile Liquidity contracts (omit parameter to watch)')
   .action(verifySetup)
   .action((contract) => contract
-    ? Build.compile(exec, compilerPath, contract + '.liq')
-    : Build.startWatcher(watch, exec, compilerPath))
+    ? builder.compileSync(exec, compilerPath, contract + '.liq')
+    : builder.startWatcher(watch, exec, compilerPath))
 
 program
   .command('test <directory>')
   .description('run a directory of tests')
   .action(verifySetup)
-  .action((directory) => Test.run(directory, glob, exec, compilerPath, tezosClient))
+  .action((directory) => Test.run(directory, glob, tezosClient, builder, exec, compilerPath))
 
 program
   .command('deploy')

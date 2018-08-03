@@ -2,7 +2,7 @@ import { exec } from 'shelljs'
 import { watch as watchImport } from 'chokidar'
 
 export namespace Build {
-  export const compile = (
+  export const compileSync = (
     execute: typeof exec,
     compilerPath: string,
     contractPath: string
@@ -15,10 +15,10 @@ export namespace Build {
   ) => watch('**/*.liq', { ignoreInitial: true })
     .on('add', (filePath: string) => {
       console.log('Compiling new file ' + filePath + '.')
-      compile(execute, compilerPath, filePath)
+      compileSync(execute, compilerPath, filePath)
     })
     .on('change', (filePath: string) => {
       console.log('Compiling changed file ' + filePath + '.')
-      compile(execute, compilerPath, filePath)
+      compileSync(execute, compilerPath, filePath)
     })
 }
