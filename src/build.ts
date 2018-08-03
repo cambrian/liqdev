@@ -1,24 +1,23 @@
-import { FSWatcher, WatchOptions } from 'chokidar'
-
 import { exec } from 'shelljs'
+import { watch as watchImport } from 'chokidar'
 
 export namespace Build {
   export const compile = (
     execute: typeof exec,
-    compilerPath: String,
-    contractPath: String
+    compilerPath: string,
+    contractPath: string
   ) => execute(compilerPath + ' ' + contractPath)
 
   export const startWatcher = (
-    watch: (paths: string | string[], options?: WatchOptions) => FSWatcher,
+    watch: typeof watchImport,
     execute: typeof exec,
-    compilerPath: String = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
+    compilerPath: string
   ) => watch('**/*.liq', { ignoreInitial: true })
-    .on('add', (filePath: String) => {
+    .on('add', (filePath: string) => {
       console.log('Compiling new file ' + filePath + '.')
       compile(execute, compilerPath, filePath)
     })
-    .on('change', (filePath: String) => {
+    .on('change', (filePath: string) => {
       console.log('Compiling changed file ' + filePath + '.')
       compile(execute, compilerPath, filePath)
     })

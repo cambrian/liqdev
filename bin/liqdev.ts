@@ -53,7 +53,7 @@ program
   .action(verifySetup)
   .action((contract) => contract
     ? Build.compile(exec, compilerPath, contract + '.liq')
-    : Build.startWatcher(watch, exec))
+    : Build.startWatcher(watch, exec, compilerPath))
 
 program
   .command('test <directory>')
