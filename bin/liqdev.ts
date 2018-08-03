@@ -3,22 +3,28 @@
 require('module-alias/register')
 
 import * as fs from 'fs'
+import * as glob from 'glob'
 import * as os from 'os'
 import * as program from 'commander'
+// TODO: Fill in the EZTZ typings.
+import * as tezosClient from 'eztz'
 
 import { Build } from '@src/build'
+import { Test } from '@src/test'
 import { exec } from 'shelljs'
 import { watch } from 'chokidar'
 
 const verifySetup = () => {
-  const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
-    .replace(/^~/, os.homedir())
-  if (!fs.existsSync(compilerPath)) {
+  const compilerPathAbsolute = compilerPath.replace(/^~/, os.homedir())
+  if (!fs.existsSync(compilerPathAbsolute)) {
     console.log('Liquidity compiler not found.')
     console.error('You must run setup before running any other tasks.')
     process.exit(1)
   }
 }
+
+// Some default paths/constants; in the future these may be options.
+const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
 
 program
   .version('0.0.1', '-v, --version')
@@ -45,9 +51,15 @@ program
   .command('build [contract]')
   .description('compile Liquidity contracts (omit parameter to watch)')
   .action(verifySetup)
-  .action((contract, args) => contract
-    ? Build.compile(contract, exec)
+  .action((contract) => contract
+    ? Build.compile(exec, compilerPath, contract + '.liq')
     : Build.startWatcher(watch, exec))
+
+program
+  .command('test <directory>')
+  .description('run a directory of tests')
+  .action(verifySetup)
+  .action((directory) => Test.run(directory, glob, exec, compilerPath, tezosClient))
 
 program
   .command('deploy')

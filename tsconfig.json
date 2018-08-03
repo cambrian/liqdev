@@ -33,6 +33,6 @@
   ],
   "include": [
     "bin/**/*.ts",
-    "test/**/*.ts"
+    "typings/**/*.ts"
   ]
 }

@@ -38,9 +38,11 @@
   },
   "dependencies": {
     "@types/chokidar": "^1.7.5",
+    "@types/find": "^0.2.1",
     "chokidar": "^2.0.4",
     "commander": "^2.16.0",
     "eztz": "git+https://github.com/whaatt/eztz.git",
+    "glob": "^7.1.2",
     "module-alias": "^2.1.0",
     "shelljs": "^0.8.2"
   },
