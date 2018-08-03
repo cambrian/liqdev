@@ -3,16 +3,20 @@ import * as glob from 'glob'
 
 import { exec } from 'shelljs'
 
+type Address = string
+type Key = string
+type Path = string
+
 export namespace Test {
-  const deploy = (accountSK: String, contractPath: String): String => String()
-  const fund = (fromSK: String, toPKH: String, amount: Number) => null
-  const call = (contractID: String, accountSK: String, parameters: String) => null
+  const deploy = (accountSK: Key, contractPath: Path): Address => ''
+  const fund = (fromSK: Key, toPKH: Address, amount: Number) => null
+  const call = (contractAddress: Address, accountSK: Key, parameters: string) => null
 
   export const run = (
-    directory: String,
+    directory: Path,
     globber: typeof glob,
     execute: typeof exec,
-    compilerPath: String,
+    compilerPath: Path,
     tezosClient: typeof eztz
   ) => null
 }
