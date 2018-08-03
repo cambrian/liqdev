@@ -6,14 +6,14 @@ cd ~/.liqdev
 mkdir -p logs
 rm -f logs/*
 
-# TODO: would be nicer to prompt and confirm
+# TODO: Would be nicer to prompt and confirm...
 echo "Checking for process on sandboxed node port (18731)..."
 PID_USING_18731=$(lsof -i :18731 | awk 'END {print $2}')
 if [ ! -z "$PID_USING_18731" ]
 then
-    echo "An existing process is using port 18731. Killing..."
-    kill $PID_USING_18731
-    sleep 1
+  echo "An existing process is using port 18731. Killing..."
+  kill $PID_USING_18731
+  sleep 1
 fi
 
 echo "Starting sandboxed node"
@@ -21,22 +21,23 @@ echo "Starting sandboxed node"
 sleep 1
 
 echo "Starting sandboxed client"
-shopt -s expand_aliases # Allow this script to access the sandboxed client aliases
+shopt -s expand_aliases # Allow this script to access the sandboxed client aliases.
 eval `./liquidity/tezos/src/bin_client/tezos-init-sandboxed-client.sh 1`
 tezos-activate-alpha
 
-# dumb way of parsing local node dir from logs
-# pls replace with a better soln if you can think of one
+# Dumb way of parsing local node dir from logs
+# Please replace with a better solution if you can think of one.
 IDFILE=$(awk '/Stored the new identity/{print $NF}' $LOGDIR/$NODE_LOG)
 DIRPART=$(dirname $IDFILE)
-NODEDIR=${DIRPART:1} # how to one-line this with ^?
+NODEDIR=${DIRPART:1} # How to one-line this with ^?
+
 echo "Starting baker with command: "
 # the [-002-PsYLVpVv] appears to be deterministic. shitty but it works.
 echo tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 
-# Running tezos-baker in the background is buggy. Something to do with permissions possibly? i.e.
-# the tezos-baker tries to make and access
+# Running tezos-baker in the background is buggy. Something to do with permissions possibly?
+# The tezos-baker tries to make and access
 # /var/folders/3k/gd03t15s19s6zvgp1v7hg99w0000gn/T/tezos-tmp-client.XXXXXXXX.R2OBAFfJ/bin/tezos-baker-002-PsYLVpVv
-# but I'm guessing is unable to mkdir
-# We decided we don't need to run in the bg, but maybe this comment will help someone some day
+# but I'm guessing is unable to mkdir.
+# We decided we don't need to run in the BG, but maybe this comment will help someone some day

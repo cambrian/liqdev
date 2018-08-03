@@ -13,11 +13,15 @@ export namespace Build {
     watch: (paths: string | string[], options?: WatchOptions) => FSWatcher,
     execute: (command: string) => ExecOutputReturnValue,
     compilerPath: String = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
-  ) => watch('*.liq') // Recursive glob should work but does not...
-    .on('change', (path) => {
-      console.log('Compiling changed file ' + path + '.')
-      const contractName = path.slice(0, -4)
+  ) => watch('**/*.liq', { ignoreInitial: true })
+    .on('add', (filePath: String) => {
+      console.log('Compiling new file ' + filePath + '.')
+      const contractName = filePath.slice(0, -4)
       compile(contractName, execute, compilerPath)
-      // TODO: Capture output and use blessed to clear screen.
+    })
+    .on('change', (filePath: String) => {
+      console.log('Compiling changed file ' + filePath + '.')
+      const contractName = filePath.slice(0, -4)
+      compile(contractName, execute, compilerPath)
     })
 }
