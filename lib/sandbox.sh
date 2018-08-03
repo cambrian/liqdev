@@ -24,10 +24,10 @@ tezos-activate-alpha
 # dumb way of parsing local node dir from logs
 # pls replace with a better soln if you can think of one
 IDFILE=$(awk '/Stored the new identity/{print $NF}' $LOGDIR/$NODE_LOG)
-echo $IDFILE
 DIRPART=$(dirname $IDFILE)
 NODEDIR=${DIRPART:1} # how to one-line this with ^?
 # the [-002-PsYLVpVv] appears to be deterministic. shitty but it works.
+echo "Running baker with command: "
 echo tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 
