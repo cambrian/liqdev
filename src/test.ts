@@ -1,31 +1,29 @@
 import * as eztz from 'eztz'
 import * as glob from 'glob'
+
 import { Address, Key, Path } from './types'
 
-import { Build } from '@src/build'
-import { exec } from 'shelljs'
+import { Compiler } from '@src/build'
 
-export namespace Test {
-  const deploy = (accountSK: Key, contractPath: Path): Address => ''
-  const fund = (fromSK: Key, toPKH: Address, amount: Number) => null
-  const call = (contractAddress: Address, accountSK: Key, parameters: string) => null
+type EZTZ = typeof eztz
 
-  const runTest =
-
-  export const run = (
-    directory: Path,
-    globber: typeof glob,
-    tezosClient: typeof eztz,
-    builder: typeof Build,
-    execute: typeof exec,
-    compilerPath: Path
-  ) => globber('**/*.liq', (error, matches) => {
-    if (error) {
-      console.error('Glob error occurred.')
-      process.exit(1)
-    }
-
-    matches.forEach(match => builder.compileSync(exec, compilerPath, match))
-    matches.forEach(match => )
-  })
+interface Case {
+  name: string,
+  initStorage: string,
+  input: string,
+  expectedStorage?: object
 }
+
+// TODO: Finish all of these functions.
+const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
+const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
+const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
+const testCase = (eztz: EZTZ, contractPath: Path, caseData: Case) => null
+const testContract = (eztz: EZTZ, contractPath: Path, generate: boolean) => null
+
+export const test = (
+  compile: Compiler,
+  eztz: EZTZ,
+  contractGlob: Path,
+  generate: boolean
+) => glob(contractGlob, (_ /* Add back in and handle. */, matches) => null)

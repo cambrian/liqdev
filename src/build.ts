@@ -1,25 +1,20 @@
-import { exec } from 'shelljs'
-import { watch as watchImport } from 'chokidar'
+import { ExecOutputReturnValue, exec } from 'shelljs'
+
 import { Path } from './types'
+import { watch } from 'chokidar'
 
-export namespace Build {
-  export const compileSync = (
-    execute: typeof exec,
-    compilerPath: Path,
-    contractPath: Path
-  ) => execute(compilerPath + ' ' + contractPath)
+export type Compiler = (contractPath: Path) => ExecOutputReturnValue
 
-  export const startWatcher = (
-    watch: typeof watchImport,
-    execute: typeof exec,
-    compilerPath: Path
-  ) => watch('**/*.liq', { ignoreInitial: true })
+export const createCompiler = (compilerPath: Path): Compiler =>
+  (contractPath: Path) => exec(compilerPath + ' ' + contractPath)
+
+export const startWatcher = (compile: Compiler) =>
+  watch('**/*.liq', { ignoreInitial: true })
     .on('add', (filePath: Path) => {
       console.log('Compiling new file ' + filePath + '.')
-      compileSync(execute, compilerPath, filePath)
+      compile(filePath)
     })
     .on('change', (filePath: Path) => {
       console.log('Compiling changed file ' + filePath + '.')
-      compileSync(execute, compilerPath, filePath)
+      compile(filePath)
     })
-}

@@ -2,17 +2,19 @@
 
 require('module-alias/register')
 
+// TODO: Fill in the EZTZ typings.
+import * as eztz from 'eztz'
 import * as fs from 'fs'
-import * as glob from 'glob'
 import * as os from 'os'
 import * as program from 'commander'
-// TODO: Fill in the EZTZ typings.
-import * as tezosClient from 'eztz'
 
-import { Build } from '@src/build'
-import { Test } from '@src/test'
+import { createCompiler, startWatcher } from '@src/build'
+
 import { exec } from 'shelljs'
-import { watch } from 'chokidar'
+import { test } from '@src/test'
+
+const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
+const compile = createCompiler(compilerPath)
 
 const verifySetup = () => {
   const compilerPathAbsolute = compilerPath.replace(/^~/, os.homedir())
@@ -22,10 +24,6 @@ const verifySetup = () => {
     process.exit(1)
   }
 }
-
-// Some default paths/constants; in the future these may be options.
-const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
-const builder = Build
 
 program
   .version('0.0.1', '-v, --version')
@@ -53,14 +51,15 @@ program
   .description('compile Liquidity contracts (omit parameter to watch)')
   .action(verifySetup)
   .action((contract) => contract
-    ? builder.compileSync(exec, compilerPath, contract + '.liq')
-    : builder.startWatcher(watch, exec, compilerPath))
+    ? compile(contract + '.liq')
+    : startWatcher(compile))
 
 program
-  .command('test <directory>')
-  .description('run a directory of tests')
+  .command('test [glob]')
+  .description('test Liquidity files matching a glob pattern')
+  .option('-g, --generate', 'generate or overwrite expected outputs')
   .action(verifySetup)
-  .action((directory) => Test.run(directory, glob, tezosClient, builder, exec, compilerPath))
+  .action((contractGlob, args) => test(compile, eztz, contractGlob, args.generate))
 
 program
   .command('deploy')
