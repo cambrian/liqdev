@@ -3,6 +3,7 @@
 require('module-alias/register')
 
 import * as fs from 'fs'
+import * as os from 'os'
 import * as program from 'commander'
 
 import { Build } from '@src/build'
@@ -10,10 +11,13 @@ import { exec } from 'shelljs'
 import { watch } from 'chokidar'
 
 const verifySetup = () => {
-  // if (!fs.existsSync('~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm')) {
-  //   console.error('You must run setup before running any other tasks.')
-  //   process.exit(1)
-  // }
+  const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
+    .replace(/^~/, os.homedir())
+  if (!fs.existsSync(compilerPath)) {
+    console.log('Liquidity compiler not found.')
+    console.error('You must run setup before running any other tasks.')
+    process.exit(1)
+  }
 }
 
 program
@@ -30,8 +34,6 @@ program
   .description('install Liquidity and Tezos')
   // Decide whether to use global or local scripts based on command name.
   .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-setup' : './lib/setup.sh'))
-
-// TODO: Make commands error gracefully if setup has not been run?
 
 program
   .command('sandbox')
