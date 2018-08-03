@@ -13,11 +13,11 @@ if [ ! -z "$PID_USING_18731" ]
 then
     echo "An existing process is using port 18731. Killing..."
     kill $PID_USING_18731
-    sleep 2
+    sleep 1
 fi
 
-./liquidity/tezos/src/bin_node/tezos-sandboxed-node.sh 1 --connections 1 > $LOGDIR/$NODE_LOG &
-sleep 2
+./liquidity/tezos/src/bin_node/tezos-sandboxed-node.sh 1 --connections 1 > $LOGDIR/$NODE_LOG 2>&1 &
+sleep 1
 shopt -s expand_aliases # Allow this script to access the sandboxed client aliases
 eval `./liquidity/tezos/src/bin_client/tezos-init-sandboxed-client.sh 1`
 tezos-activate-alpha
