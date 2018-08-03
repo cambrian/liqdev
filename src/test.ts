@@ -1,11 +1,8 @@
 import * as eztz from 'eztz'
 import * as glob from 'glob'
+import { Address, Key, Path } from './types'
 
 import { exec } from 'shelljs'
-
-type Address = string
-type Key = string
-type Path = string
 
 export namespace Test {
   const deploy = (accountSK: Key, contractPath: Path): Address => ''
