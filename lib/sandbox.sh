@@ -6,8 +6,8 @@ cd ~/.liqdev
 mkdir -p logs
 rm -f logs/*
 
-# Kill process running on 18731
 # TODO: would be nicer to prompt and confirm
+echo "Checking for process on sandboxed node port (18731)..."
 PID_USING_18731=$(lsof -i :18731 | awk 'END {print $2}')
 if [ ! -z "$PID_USING_18731" ]
 then
@@ -16,8 +16,11 @@ then
     sleep 1
 fi
 
+echo "Starting sandboxed node"
 ./liquidity/tezos/src/bin_node/tezos-sandboxed-node.sh 1 --connections 1 > $LOGDIR/$NODE_LOG 2>&1 &
 sleep 1
+
+echo "Starting sandboxed client"
 shopt -s expand_aliases # Allow this script to access the sandboxed client aliases
 eval `./liquidity/tezos/src/bin_client/tezos-init-sandboxed-client.sh 1`
 tezos-activate-alpha
@@ -27,7 +30,7 @@ IDFILE=$(awk '/Stored the new identity/{print $NF}' $LOGDIR/$NODE_LOG)
 DIRPART=$(dirname $IDFILE)
 NODEDIR=${DIRPART:1} # how to one-line this with ^?
 # the [-002-PsYLVpVv] appears to be deterministic. shitty but it works.
-echo "Running baker with command: "
+echo "Starting baker with command: "
 echo tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 tezos-baker-002-PsYLVpVv run with local node $NODEDIR
 
