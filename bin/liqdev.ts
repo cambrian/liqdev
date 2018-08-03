@@ -2,11 +2,19 @@
 
 require('module-alias/register')
 
+import * as fs from 'fs'
 import * as program from 'commander'
 
 import { Build } from '@src/build'
 import { exec } from 'shelljs'
 import { watch } from 'chokidar'
+
+const verifySetup = () => {
+  // if (!fs.existsSync('~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm')) {
+  //   console.error('You must run setup before running any other tasks.')
+  //   process.exit(1)
+  // }
+}
 
 program
   .version('0.0.1', '-v, --version')
@@ -28,11 +36,13 @@ program
 program
   .command('sandbox')
   .description('run sandbox Tezos network (node, client, and baker)')
+  .action(verifySetup)
   .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-sandbox' : './lib/sandbox.sh'))
 
 program
   .command('build [contract]')
   .description('compile Liquidity contracts (omit parameter to watch)')
+  .action(verifySetup)
   .action((contract, args) => contract
     ? Build.compile(contract, exec)
     : Build.startWatcher(watch, exec))
@@ -40,6 +50,8 @@ program
 program
   .command('deploy')
   .description('deploy contract to any of the tezos networks')
+  .action(verifySetup)
+  .action(() => console.log('This command is still experimental.'))
   .action(() => exec(process.argv[0] === 'liqdev' ? 'liqdev-deploy' : './lib/deploy.sh'))
 
 program
