@@ -3,7 +3,7 @@ import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
 import * as readline from 'readline'
 
-import { Address, Key, Path } from './types'
+import { Address, EZTZ, Key, Path, TestCaseData } from './types'
 import { diffJson, diffWords } from 'diff'
 import { exec, execSync } from 'child_process'
 
@@ -13,18 +13,10 @@ import glob = require('glob-promise')
 
 import Mocha = require('mocha')
 
-type EZTZ = typeof eztz
-
-interface TestCaseData {
-  name: string,
-  initStorage: string,
-  input: string,
-  expectedStorage: object
-}
-
 // TODO: Finish all of these functions.
 const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
-const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
+
+// const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
 const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
 const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => Object() // return new storage
 
