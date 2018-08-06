@@ -1,16 +1,14 @@
+import * as Mocha from 'mocha'
 import * as colors from 'colors'
 import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
+import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
 import { Address, EZTZ, Key, Path, TestCaseData } from './types'
 
 import { Compiler } from '@src/build'
 import { diffJson } from 'diff'
-
-import glob = require('glob-promise')
-
-import Mocha = require('mocha')
 
 // TODO: Finish all of these functions.
 const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
@@ -84,7 +82,7 @@ const promptYesNo = async (prompt: string, { def }: { def: boolean }) => {
   return new Promise<boolean>((resolve, _) => { loop(resolve) })
 }
 
-const genContract = async (
+const genTestData = async (
   eztz: EZTZ,
   contractPath: Path,
   tests: TestCaseData[],
@@ -138,7 +136,7 @@ export const test = async (
       continue
     }
     compile(file)
-    if (generate) await genContract(eztz, file, testData.tests, testFile)
+    if (generate) await genTestData(eztz, file, testData.tests, testFile)
     else await testContract(eztz, file, testData.tests)
   }
 }

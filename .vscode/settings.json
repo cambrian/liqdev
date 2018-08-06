@@ -16,5 +16,6 @@
   "typescript.format.insertSpaceAfterConstructor": true,
   "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
   "typescript.format.insertSpaceAfterTypeAssertion": true,
-  "autoimport.useSemiColon": false
+  "autoimport.useSemiColon": false,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
