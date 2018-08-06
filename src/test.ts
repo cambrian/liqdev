@@ -1,6 +1,5 @@
-import 'mocha'
-
 import * as eztz from 'eztz'
+import * as fs from 'fs-extra'
 
 import { Address, Key, Path } from './types'
 
@@ -23,19 +22,52 @@ interface TestCaseData {
 const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
 const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
 const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
-const testCase = (mocha: Mocha, eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => null
-const testContract = (mocha: Mocha, eztz: EZTZ, contractPath: Path, generate: boolean) => null
+const testCase = (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => null
 
-export async function test (
+const testContract =
+  async (
+    parentSuite: Mocha.Suite,
+    eztz: EZTZ,
+    contractPath: Path,
+    tests: TestCaseData[],
+    generate: boolean
+  ) => {
+    let suite = new Mocha.Suite(contractPath)
+    parentSuite.addSuite(suite)
+    for (let test of tests) {
+      suite.addTest(new Mocha.Test(test.name, async () => {
+        let diff = testCase(eztz, contractPath, test)
+        if (diff) throw diff
+      }))
+    }
+  }
+
+export const test = async (
   compile: Compiler,
   eztz: EZTZ,
   contractGlob: Path,
   generate: boolean
-) {
-  let mocha = new Mocha()
+) => {
+  let suite = new Mocha.Suite('Liqdev Tests')
+  let runner = new Mocha.Runner(suite, false)
   let files = await glob(contractGlob)
   for (let file of files) {
-    testContract(mocha, eztz, file, generate)
+    if (!file.endsWith('.liq')) continue
+    let testFile = file + '.test.json'
+    let hasTestFile = true
+    await fs.access(testFile, fs.constants.F_OK).catch(e => { if (e) hasTestFile = false })
+    if (!hasTestFile) {
+      console.warn('Test file not found for "' + file + '". Skipping...')
+      continue
+    }
+    let validTestFile = true
+    let tests = await fs.readJson(testFile).catch(e => { if (e) validTestFile = false }) // TODO: better validation
+    if (!validTestFile) {
+      console.error('Invalid test file for "' + file + '". Skipping...')
+      continue
+    }
+    compile(file)
+    testContract(suite, eztz, file, tests, generate)
   }
-  mocha.run(...todo)
+  runner.run()
 }
