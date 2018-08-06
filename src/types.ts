@@ -9,5 +9,5 @@ export interface TestCaseData {
   name: string,
   initStorage: string,
   input: string,
-  expectedStorage?: object
+  expectedStorage: object
 }

@@ -4,10 +4,10 @@ import * as fs from 'fs-extra'
 import * as readline from 'readline'
 
 import { Address, EZTZ, Key, Path, TestCaseData } from './types'
-import { diffJson, diffWords } from 'diff'
-import { exec, execSync } from 'child_process'
 
 import { Compiler } from '@src/build'
+import { diffJson } from 'diff'
+import { execSync } from 'child_process'
 
 import glob = require('glob-promise')
 
@@ -19,8 +19,6 @@ const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
 // const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
 const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
 const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => Object() // return new storage
-
-const prettyJson = (obj: any) => JSON.stringify(obj, null, 2)
 
 const diffToString = (diff: JsDiff.IDiffResult[]) => {
   let s = ''
@@ -86,11 +84,6 @@ const promptYesNo = async (prompt: string, { def }: { def: boolean }) => {
   }
   return new Promise<boolean>((resolve, _) => { loop(resolve) })
 }
-
-const less = async (text: string) => execSync('echo \'' + text + '\' | less', { stdio: 'inherit' })
-
-const emptyPrompt = (prompt: string) =>
-  new Promise((resolve, _) => { rl.question(prompt, resolve) })
 
 const genContract = async (
   eztz: EZTZ,
