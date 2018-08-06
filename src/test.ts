@@ -7,7 +7,6 @@ import { Address, EZTZ, Key, Path, TestCaseData } from './types'
 
 import { Compiler } from '@src/build'
 import { diffJson } from 'diff'
-import { execSync } from 'child_process'
 
 import glob = require('glob-promise')
 
