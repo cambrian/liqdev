@@ -1,21 +1,13 @@
 /** Stub declaration file for EZTZ. TODO: Fill in completely. */
 
 declare module 'eztz' {
-  const prototype: {};
+  namespace eztz {
+    // namespace contract
+    // namespace crypto
+    // namespace rpc
 
-  namespace crypto {
-    const prototype: {};
-  }
-
-  namespace node {
-    const prototype: {};
-  }
-
-  namespace rpc {
-    const prototype: {};
-  }
-
-  namespace contract {
-    const prototype: {};
+    namespace node {
+      const setProvider: (provider: string) => void
+    }
   }
 }

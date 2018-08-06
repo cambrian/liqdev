@@ -4,28 +4,29 @@
 # TODO: Network selection.
 
 echo "Liqdev Contract Deployer"
-read -e -p "Path To Contract: " contract
+echo "NOTE: This command is still experimental."
+read -e -p "Path To Contract: " CONTRACT
 
 # Use contract filename (no extension) as default value for contract alias.
-contract_filename=$(basename $contract | cut -d. -f1)
-read -p "Contract Name ($contract_filename): " contract_name
-contract_name="${contract_name:-$contract_filename}"
-read -p "Originating Account: " account
-read -p "Amount To Transfer (2.01)" amt
-amt="${amt:-2.01}"
+CONTRACT_FILENAME=$(basename $CONTRACT | cut -d. -f1)
+read -p "Contract Name ($CONTRACT_FILENAME): " CONTRACT_NAME
+CONTRACT_NAME="${CONTRACT_NAME:-$CONTRACT_FILENAME}"
+read -p "Originating Account: " ACCOUNT
+read -p "Amount To Transfer (2.01)" AMT
+AMT="${AMT:-2.01}"
 
 # Read init data file if available.
-init_filename=${contract/.tz/.init.tz}
-if [ -f $init_filename ]; then
-  found_init=$(<$init_filename)
-  read -p "Init Data (leave empty to use $init_filename): " init
-  init="${init:=$found_init}"
+INIT_FILENAME=${CONTRACT/.tz/.init.tz}
+if [ -f $INIT_FILENAME ]; then
+  FOUND_INIT=$(<$INIT_FILENAME)
+  read -p "Init Data (leave empty to use $INIT_FILENAME): " INIT
+  INIT="${INIT:=$FOUND_INIT}"
 else
-  read -p "Init data not found. Please provide: " init
+  read -p "Init data not found. Please provide: " INIT
 fi
 
 echo "Executing: "
-echo tezos-client originate contract $contract_name for $account transferring $amt from $account \
-     running $contract --init '$init'
-~/.liqdev/liquidity/tezos/tezos-client originate contract $contract_name for $account transferring \
-                                       $amt from $account running $contract --init '$init'
+echo tezos-client originate contract $CONTRACT_NAME for $ACCOUNT transferring $AMT from $ACCOUNT \
+     running $CONTRACT --init '$INIT'
+~/.liqdev/liquidity/tezos/tezos-client originate contract $CONTRACT_NAME for $ACCOUNT transferring \
+                                       $AMT from $ACCOUNT running $CONTRACT --init '$INIT'
