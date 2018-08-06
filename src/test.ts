@@ -22,25 +22,38 @@ interface TestCaseData {
 const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
 const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
 const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
-const testCase = (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => null
+const testCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => null
 
 const testContract =
   async (
-    parentSuite: Mocha.Suite,
     eztz: EZTZ,
     contractPath: Path,
     tests: TestCaseData[],
     generate: boolean
   ) => {
     let suite = new Mocha.Suite(contractPath)
-    parentSuite.addSuite(suite)
+    let runner = new Mocha.Runner(suite, false)
+    let _ = new Mocha.reporters.Spec(runner)
     for (let test of tests) {
       suite.addTest(new Mocha.Test(test.name, async () => {
         let diff = testCase(eztz, contractPath, test)
-        if (diff) throw diff
+        if (diff) throw new Error('Contract produced different output than expected: ' + diff)
       }))
     }
+    runner.run()
   }
+
+const readTestFile = async (file: Path) => {
+  let x = {
+    exists: true,
+    valid: true,
+    data: []
+  }
+  await fs.access(file, fs.constants.F_OK).catch(e => { if (e) x.exists = false })
+  x.data = await fs.readJson(file).catch(e => { if (e) x.valid = false })
+  // TODO: better validation
+  return x
+}
 
 export const test = async (
   compile: Compiler,
@@ -48,26 +61,20 @@ export const test = async (
   contractGlob: Path,
   generate: boolean
 ) => {
-  let suite = new Mocha.Suite('Liqdev Tests')
-  let runner = new Mocha.Runner(suite, false)
   let files = await glob(contractGlob)
   for (let file of files) {
     if (!file.endsWith('.liq')) continue
     let testFile = file + '.test.json'
-    let hasTestFile = true
-    await fs.access(testFile, fs.constants.F_OK).catch(e => { if (e) hasTestFile = false })
-    if (!hasTestFile) {
+    let tests = await readTestFile(testFile)
+    if (!tests.exists) {
       console.warn('Test file not found for "' + file + '". Skipping...')
       continue
     }
-    let validTestFile = true
-    let tests = await fs.readJson(testFile).catch(e => { if (e) validTestFile = false }) // TODO: better validation
-    if (!validTestFile) {
+    if (!tests.valid) {
       console.error('Invalid test file for "' + file + '". Skipping...')
       continue
     }
     compile(file)
-    testContract(suite, eztz, file, tests, generate)
+    testContract(eztz, file, tests.data, generate)
   }
-  runner.run()
 }
