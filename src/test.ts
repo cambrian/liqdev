@@ -1,5 +1,4 @@
-import 'colors'
-
+import * as colors from 'colors'
 import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
 import * as readline from 'readline'
@@ -31,13 +30,27 @@ const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseDat
 
 const prettyJson = (obj: any) => JSON.stringify(obj, null, 2)
 
-const diff = (a: string, b: string) =>
-  new Promise<string>((resolve, _) =>
-    // can't use execSync here because sdiff reports failure when it finds a diff
-    exec('bash -c "diff -y <(echo \'' + a + '\') <(echo \'' + b + '\')"', (_err, stdout, _stderr) => {
-      resolve(stdout)
-    })
-  )
+const diffToString = (diff: JsDiff.IDiffResult[]) => {
+  let s = ''
+  for (let part of diff) {
+    let color = part.added
+      ? colors.green
+      : part.removed
+        ? colors.red
+        : colors.grey
+    s += color(part.value)
+  }
+  return s
+}
+
+const jsonDiff = (a: any, b: any) => diffToString(diffJson(a, b))
+
+const diffIsEmpty = (diff: JsDiff.IDiffResult[]) => {
+  for (let part of diff) {
+    if (part.added || part.removed) return false
+  }
+  return true
+}
 
 const testContract = async (
   eztz: EZTZ,
@@ -51,11 +64,11 @@ const testContract = async (
 
   for (let test of tests) {
     let newStorage = await runCase(eztz, contractPath, test)
-    let d = await diff(prettyJson(test.expectedStorage), prettyJson(newStorage))
+    let diff = diffJson(test.expectedStorage, newStorage)
     suite.addTest(new Mocha.Test(test.name, async () => {
-      if (d !== '') {
-        throw new Error('Contract produced nonzero diff with expected storage (left):\n' + d
-        )
+      if (!diffIsEmpty(diff)) {
+        let s = diffToString(diff)
+        throw new Error('Contract produced nonzero diff with expected storage (red):\n' + s)
       }
     }))
   }
@@ -94,15 +107,12 @@ const genContract = async (
   testFile: Path
 ) => {
   console.log('Generating new test data for "' + contractPath + '"...')
-  let oldTests = prettyJson(tests)
+  let oldTests = JSON.parse(JSON.stringify(tests))
   for (let test of tests) {
     test.expectedStorage = await runCase(eztz, contractPath, test)
   }
-  await emptyPrompt('Inspect generated data (right). Please inspect carefully! [Enter to continue]')
-  console.log(oldTests)
-  console.log(prettyJson(tests))
-  let d = await diff(oldTests, prettyJson(tests))
-  console.log(d)
+  console.log('Inspect generated diff. Any changes will be highlighted.')
+  console.log(jsonDiff(oldTests, tests))
   let ok = await promptYesNo('Ok?', { def: false })
   if (!ok) {
     console.log('Generated data not ok. Preserving old test data for "' + contractPath + '".')
