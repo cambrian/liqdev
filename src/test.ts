@@ -11,12 +11,6 @@ import { diffJson } from 'diff'
 import { testAccount } from './config'
 
 // TODO: Finish all of these functions.
-const deploy = async (eztz: EZTZ, accountSK: Key, contractFile: Path, storage: Sexp) => ''
-
-// const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
-
-const call = async (eztz: EZTZ, contract: Address, accountSK: Key, parameters: Sexp) => Object()
-
 const runCase = async (eztz: EZTZ, contractFile: Path, data: TestCaseData) => {
   let contract = await deploy(eztz, testAccount.sk, contractFile, data.initialStorage)
   return call(eztz, contract, testAccount.sk, data.callParams)
