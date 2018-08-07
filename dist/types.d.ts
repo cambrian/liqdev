@@ -2,6 +2,7 @@
 import { ExecOutputReturnValue } from 'shelljs';
 import { eztz } from 'eztz';
 export declare type Address = string;
+<<<<<<< HEAD
 export declare type Account = eztz.Keys;
 export declare type CallResult = eztz.contract.SendResult;
 export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
@@ -9,6 +10,15 @@ export declare type Diff = JsDiff.IDiffResult[];
 export declare type EZTZ = typeof eztz;
 export declare type Key = eztz.Key;
 export declare type KeyHash = eztz.KeyHash;
+=======
+export import Account = eztz.crypto.Keys;
+export declare type CallResult = object;
+export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
+export declare type Diff = JsDiff.IDiffResult[];
+export declare type EZTZ = typeof eztz;
+export import Key = eztz.crypto.Key;
+export import KeyHash = eztz.crypto.KeyHash;
+>>>>>>> 27240027dcf375418c7b1f72b4b3eaee48fb188a
 export declare type Path = string;
 export declare type Sexp = string;
 export declare type StorageResult = eztz.contract.StorageResult;

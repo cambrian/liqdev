@@ -10,7 +10,14 @@ import * as runGlob from 'glob-promise'
 import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
 import { KeyGen } from './keygen'
-import { diffJson } from 'diff'
+import { diffJson as _diffJson } from 'diff'
+
+// Sketchy workaround because diffJson TypeErrors if either input is undefined
+const diffJson = (a: any, b: any) => {
+  if (a === undefined) a = null
+  if (b === undefined) b = null
+  return _diffJson(a, b)
+}
 
 async function runUnitTest (eztz: EZTZ, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
   // TODO
@@ -125,7 +132,7 @@ function unitTestSuite (
     // TODO: validate tests object against Test.Unit[]
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
-      s.addTest(makeMochaTest(testFile, async () => {
+      s.addTest(makeMochaTest(test.name, async () => {
         let actual = await runUnitTest(eztz, michelsonFile, test)
         return { actual, expected: test.expected }
       }))
@@ -149,7 +156,7 @@ function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
 }
 
 /**
- * @param glob Matches contracts AND test files (leave out extension)
+ * @param glob Matches contracts AND test files (so leave out the extension when calling this)
  */
 export async function test (
   compile: Compiler,
@@ -161,8 +168,13 @@ export async function test (
   }: TestCmdParams,
   glob = '**/*'
 ) {
-  const keyGen = new KeyGen(eztz, 0)
-  let files = await runGlob(glob)
+  if (!unit && !integration) {
+    unit = true
+    integration = true
+  }
+  const keyGen = new KeyGen(eztz, config.seed)
+  let files = await runGlob(glob) // BUG: not working??
+  console.log(files)
 
   let contractFiles = _.filter(files, f => f.endsWith('.liq'))
   for (let contractFile of contractFiles) compile(contractFile)
