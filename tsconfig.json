@@ -17,13 +17,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
-    "paths": {
-      "@src/*": [
-        "src/*"
-      ]
-    },
     "pretty": true,
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true,
     "target": "es6",
     "traceResolution": false
@@ -32,7 +27,7 @@
     "node_modules"
   ],
   "include": [
-    "bin/**/*.ts",
+    "src/**/*.ts",
     "typings/**/*.ts"
   ]
 }
