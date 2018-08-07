@@ -6,12 +6,12 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as program from 'commander'
 
-import { createCompiler, startWatcher } from '@src/build'
+import { createCompiler, startWatcher } from './build'
 
 import { exec } from 'shelljs'
 import { eztz } from 'eztz'
 import { spawn } from 'child_process'
-import { test } from '@src/test'
+import { test } from './test'
 
 const compile = createCompiler(config.compilerPath)
 const runGlobally = process.argv[0] === config.commandName

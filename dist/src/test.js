@@ -32,16 +32,16 @@ const diffIsEmpty = (diff) => {
     return true;
 };
 const testContract = (eztz, contractPath, tests) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-    let suite = new Mocha.Suite(contractPath);
-    let runner = new Mocha.Runner(suite, false);
+    let suite = new Mocha.Suite(contractPath)
+    let runner = new Mocha.Runner(suite, false)
     // runner is never called explicitly but is necessary to create
-    let _ = new Mocha.reporters.Spec(runner);
+    let _ = new Mocha.reporters.Spec(runner)
     for (let test of tests) {
         let newStorage = yield runCase(eztz, contractPath, test);
         let diff = diff_1.diffJson(test.expectedStorage, newStorage);
         suite.addTest(new Mocha.Test(test.name, () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (!diffIsEmpty(diff)) {
-                let s = diffToString(diff);
+                let s = diffToString(diff)
                 throw new Error('Contract produced nonzero diff with expected storage (red):\n' + s);
             }
         })));
@@ -92,10 +92,14 @@ const readTestData = (file) => tslib_1.__awaiter(this, void 0, void 0, function*
         valid: true,
         tests: []
     };
-    yield fs.access(file, fs.constants.F_OK).catch(e => { if (e)
-        x.exists = false; });
-    x.tests = yield fs.readJson(file).catch(e => { if (e)
-        x.valid = false; });
+    yield fs.access(file, fs.constants.F_OK).catch(e => {
+        if (e)
+            x.exists = false;
+    });
+    x.tests = yield fs.readJson(file).catch(e => {
+        if (e)
+            x.valid = false;
+    });
     // TODO: better validation
     return x;
 });

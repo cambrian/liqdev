@@ -8,13 +8,19 @@ import * as readline from 'readline'
 import { Address, Compiler, EZTZ, Key, Path, TestCaseData } from './types'
 
 import { diffJson } from 'diff'
+import { testAccount } from './config'
 
 // TODO: Finish all of these functions.
-const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
+const deploy = async (eztz: EZTZ, accountSK: Key, contractPath: Path) => ''
 
 // const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
-const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
-const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => Object() // return new storage
+
+const call = async (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => Object()
+
+const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => {
+  await deploy(eztz, testAccount.sk, contractPath)
+  return Object()
+}
 
 const diffToString = (diff: JsDiff.IDiffResult[]) => {
   let s = ''

@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "description": "Swiss army knife for Liquidity development.",
   "bin": {
-    "liqdev": "dist/bin/liqdev.js",
-    "liqdev-baker": "lib/baker.sh",
-    "liqdev-client": "lib/client.sh",
-    "liqdev-deploy": "lib/deploy.sh",
-    "liqdev-kill": "lib/kill.sh",
-    "liqdev-setup": "lib/setup.sh"
+    "liqdev": "dist/liqdev.js",
+    "liqdev-baker": "dist/baker.sh",
+    "liqdev-client": "dist/client.sh",
+    "liqdev-deploy": "dist/deploy.sh",
+    "liqdev-kill": "dist/kill.sh",
+    "liqdev-setup": "dist/setup.sh"
   },
   "scripts": {
     "build": "tsc && chmod +x dist/bin/liqdev.js && chmod +x lib/*",
@@ -54,11 +54,7 @@
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "glob-promise": "^3.4.0",
-    "module-alias": "^2.1.0",
     "shelljs": "^0.8.2",
     "tslib": "^1.9.3"
-  },
-  "_moduleAliases": {
-    "@src": "dist/src"
   }
 }
