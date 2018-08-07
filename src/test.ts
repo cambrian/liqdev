@@ -9,6 +9,7 @@ import * as runGlob from 'glob-promise'
 
 import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
+import { KeyGen } from './keygen'
 import { diffJson } from 'diff'
 
 async function runUnitTest (eztz: EZTZ, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
@@ -160,6 +161,7 @@ export async function test (
   }: TestCmdParams,
   glob = '**/*'
 ) {
+  const keyGen = new KeyGen(eztz, 0)
   let files = await runGlob(glob)
 
   let contractFiles = _.filter(files, f => f.endsWith('.liq'))

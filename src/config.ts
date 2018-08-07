@@ -4,6 +4,7 @@ export const defaultProvider = 'http://127.0.0.1:18731'
 
 export const unitTestExtension = '.utest.json'
 export const integrationTestExtension = '.itest.json'
+export const seed = 0
 
 export const setupPath = {
   local: './lib/setup.sh',
