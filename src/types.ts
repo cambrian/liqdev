@@ -12,7 +12,6 @@ export import KeyHash = eztz.crypto.KeyHash
 export type Path = string
 export type Sexp = string
 export type TestCmdParams = {
-  glob: Path // Matches contracts AND test files (leave out extension)
   generate: boolean,
   unit: boolean,
   integration: boolean

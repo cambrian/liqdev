@@ -84,7 +84,7 @@ program
   .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
-  .action((contractGlob, args) => test(compile, eztz, contractGlob, args))
+  .action((glob, args) => test(compile, eztz, args, glob))
   .action(() => process.exit(0))
 
 program

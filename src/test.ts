@@ -147,15 +147,18 @@ function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
   return suite
 }
 
+/**
+ * @param glob Matches contracts AND test files (leave out extension)
+ */
 export async function test (
   compile: Compiler,
   eztz: EZTZ,
   {
-    glob,
     generate,
     unit,
     integration
-  }: TestCmdParams
+  }: TestCmdParams,
+  glob = '**/*'
 ) {
   let files = await runGlob(glob)
 
