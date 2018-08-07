@@ -1,18 +1,13 @@
-import 'colors'
-
+import * as Mocha from 'mocha'
+import * as colors from 'colors'
 import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
+import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Address, EZTZ, Key, Path, TestCaseData } from './types'
-import { diffJson, diffWords } from 'diff'
-import { exec, execSync } from 'child_process'
+import { Address, Compiler, EZTZ, Key, Path, TestCaseData } from './types'
 
-import { Compiler } from '@src/build'
-
-import glob = require('glob-promise')
-
-import Mocha = require('mocha')
+import { diffJson } from 'diff'
 
 // TODO: Finish all of these functions.
 const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
@@ -21,15 +16,25 @@ const deploy = (eztz: EZTZ, accountSK: Key, contractPath: Path): Address => ''
 const call = (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => null
 const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => Object() // return new storage
 
-const prettyJson = (obj: any) => JSON.stringify(obj, null, 2)
+const diffToString = (diff: JsDiff.IDiffResult[]) => {
+  let s = ''
+  for (let part of diff) {
+    let color = part.added
+      ? colors.green
+      : part.removed
+        ? colors.red
+        : colors.grey
+    s += color(part.value)
+  }
+  return s
+}
 
-const diff = (a: string, b: string) =>
-  new Promise<string>((resolve, _) =>
-    // can't use execSync here because sdiff reports failure when it finds a diff
-    exec('bash -c "diff -y <(echo \'' + a + '\') <(echo \'' + b + '\')"', (_err, stdout, _stderr) => {
-      resolve(stdout)
-    })
-  )
+const diffIsEmpty = (diff: JsDiff.IDiffResult[]) => {
+  for (let part of diff) {
+    if (part.added || part.removed) return false
+  }
+  return true
+}
 
 const testContract = async (
   eztz: EZTZ,
@@ -38,16 +43,16 @@ const testContract = async (
 ) => {
   let suite = new Mocha.Suite(contractPath)
   let runner = new Mocha.Runner(suite, false)
-  // runner is never called explicitly but necessary to create
+  // runner is never called explicitly but is necessary to create
   let _ = new Mocha.reporters.Spec(runner)
 
   for (let test of tests) {
     let newStorage = await runCase(eztz, contractPath, test)
-    let d = await diff(prettyJson(test.expectedStorage), prettyJson(newStorage))
+    let diff = diffJson(test.expectedStorage, newStorage)
     suite.addTest(new Mocha.Test(test.name, async () => {
-      if (d !== '') {
-        throw new Error('Contract produced nonzero diff with expected storage (left):\n' + d
-        )
+      if (!diffIsEmpty(diff)) {
+        let s = diffToString(diff)
+        throw new Error('Contract produced nonzero diff with expected storage (red):\n' + s)
       }
     }))
   }
@@ -74,27 +79,19 @@ const promptYesNo = async (prompt: string, { def }: { def: boolean }) => {
   return new Promise<boolean>((resolve, _) => { loop(resolve) })
 }
 
-const less = async (text: string) => execSync('echo \'' + text + '\' | less', { stdio: 'inherit' })
-
-const emptyPrompt = (prompt: string) =>
-  new Promise((resolve, _) => { rl.question(prompt, resolve) })
-
-const genContract = async (
+const genTestData = async (
   eztz: EZTZ,
   contractPath: Path,
   tests: TestCaseData[],
   testFile: Path
 ) => {
   console.log('Generating new test data for "' + contractPath + '"...')
-  let oldTests = prettyJson(tests)
+  let oldTests = JSON.parse(JSON.stringify(tests))
   for (let test of tests) {
     test.expectedStorage = await runCase(eztz, contractPath, test)
   }
-  await emptyPrompt('Inspect generated data (right). Please inspect carefully! [Enter to continue]')
-  console.log(oldTests)
-  console.log(prettyJson(tests))
-  let d = await diff(oldTests, prettyJson(tests))
-  console.log(d)
+  console.log('Inspect generated diff. Any changes will be highlighted.')
+  console.log(diffToString(diffJson(oldTests, tests)))
   let ok = await promptYesNo('Ok?', { def: false })
   if (!ok) {
     console.log('Generated data not ok. Preserving old test data for "' + contractPath + '".')
@@ -136,7 +133,7 @@ export const test = async (
       continue
     }
     compile(file)
-    if (generate) await genContract(eztz, file, testData.tests, testFile)
+    if (generate) await genTestData(eztz, file, testData.tests, testFile)
     else await testContract(eztz, file, testData.tests)
   }
 }

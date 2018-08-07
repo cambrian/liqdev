@@ -1,9 +1,7 @@
-import { ExecOutputReturnValue, exec } from 'shelljs'
+import { Compiler, Path } from './types'
 
-import { Path } from './types'
+import { exec } from 'shelljs'
 import { watch } from 'chokidar'
-
-export type Compiler = (contractPath: Path) => ExecOutputReturnValue
 
 export const createCompiler = (compilerPath: Path): Compiler =>
   (contractPath: Path) => exec(compilerPath + ' ' + contractPath)

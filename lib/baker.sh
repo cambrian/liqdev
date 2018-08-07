@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run me before client.
-# RUn me after kill.
+# Run me after kill.
 LIQDEV_DIR=${1:-~/.liqdev}
 
 LOGDIR=logs
