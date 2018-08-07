@@ -82,6 +82,7 @@ program
   .description('test Liquidity files matching a glob pattern')
   .option('-g, --generate', 'generate or overwrite expected outputs')
   .action(verifySetup)
+  .action(verifySandbox)
   .action((contractGlob, args) => test(compile, eztz, contractGlob, args))
   .action(() => process.exit(0))
 

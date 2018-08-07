@@ -5,21 +5,21 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Address, Compiler, EZTZ, Key, Path, TestCaseData } from './types'
+import { Address, Compiler, EZTZ, Key, Path, Sexp, TestCaseData } from './types'
 
 import { diffJson } from 'diff'
 import { testAccount } from './config'
 
 // TODO: Finish all of these functions.
-const deploy = async (eztz: EZTZ, accountSK: Key, contractPath: Path) => ''
+const deploy = async (eztz: EZTZ, accountSK: Key, contractFile: Path, storage: Sexp) => ''
 
 // const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
 
-const call = async (eztz: EZTZ, contractAddress: Address, accountSK: Key, parameters: string) => Object()
+const call = async (eztz: EZTZ, contract: Address, accountSK: Key, parameters: Sexp) => Object()
 
-const runCase = async (eztz: EZTZ, contractPath: Path, testCaseData: TestCaseData) => {
-  await deploy(eztz, testAccount.sk, contractPath)
-  return Object()
+const runCase = async (eztz: EZTZ, contractFile: Path, data: TestCaseData) => {
+  let contract = await deploy(eztz, testAccount.sk, contractFile, data.initialStorage)
+  return call(eztz, contract, testAccount.sk, data.callParams)
 }
 
 const diffToString = (diff: JsDiff.IDiffResult[]) => {
@@ -44,16 +44,16 @@ const diffIsEmpty = (diff: JsDiff.IDiffResult[]) => {
 
 const testContract = async (
   eztz: EZTZ,
-  contractPath: Path,
+  contractFile: Path,
   tests: TestCaseData[]
 ) => {
-  let suite = new Mocha.Suite(contractPath)
+  let suite = new Mocha.Suite(contractFile)
   let runner = new Mocha.Runner(suite, false)
   // runner is never called explicitly but is necessary to create
   let _ = new Mocha.reporters.Spec(runner)
 
   for (let test of tests) {
-    let newStorage = await runCase(eztz, contractPath, test)
+    let newStorage = await runCase(eztz, contractFile, test)
     let diff = diffJson(test.expectedStorage, newStorage)
     suite.addTest(new Mocha.Test(test.name, async () => {
       if (!diffIsEmpty(diff)) {
@@ -87,22 +87,22 @@ const promptYesNo = async (prompt: string, { def }: { def: boolean }) => {
 
 const genTestData = async (
   eztz: EZTZ,
-  contractPath: Path,
+  contractFile: Path,
   tests: TestCaseData[],
   testFile: Path
 ) => {
-  console.log('Generating new test data for "' + contractPath + '"...')
+  console.log('Generating new test data for "' + contractFile + '"...')
   let oldTests = JSON.parse(JSON.stringify(tests))
   for (let test of tests) {
-    test.expectedStorage = await runCase(eztz, contractPath, test)
+    test.expectedStorage = await runCase(eztz, contractFile, test)
   }
   console.log('Inspect generated diff. Any changes will be highlighted.')
   console.log(diffToString(diffJson(oldTests, tests)))
   let ok = await promptYesNo('Ok?', { def: false })
   if (!ok) {
-    console.log('Generated data not ok. Preserving old test data for "' + contractPath + '".')
+    console.log('Generated data not ok. Preserving old test data for "' + contractFile + '".')
   } else {
-    console.log('Writing new data for "' + contractPath + '".')
+    console.log('Writing new data for "' + contractFile + '".')
     await fs.writeJson(testFile, tests, { spaces: 2 })
   }
 }
