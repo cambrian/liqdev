@@ -32,9 +32,6 @@
   },
   "homepage": "https://github.com/1protocol/liqdev#readme",
   "devDependencies": {
-<<<<<<< HEAD
-    "@types/node": "^10.5.6",
-=======
     "@types/chokidar": "^1.7.5",
     "@types/colors": "^1.2.1",
     "@types/diff": "^3.5.1",
@@ -42,7 +39,6 @@
     "@types/fs-extra": "^5.0.4",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.5",
->>>>>>> ae6475fc7bc316d0ef2e19e4ddcd08fd5dcf70ff
     "@types/shelljs": "^0.8.0",
     "mocha": "^5.2.0",
     "tslint": "^5.11.0",
