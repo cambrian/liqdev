@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/1protocol/liqdev#readme",
   "devDependencies": {
+    "@types/bip39": "^2.4.0",
     "@types/chokidar": "^1.7.5",
     "@types/colors": "^1.2.1",
     "@types/diff": "^3.5.1",
@@ -45,6 +46,8 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@types/seedrandom": "^2.4.27",
+    "bip39": "^2.5.0",
     "chokidar": "^2.0.4",
     "colors": "^1.3.1",
     "commander": "^2.17.0",
@@ -54,6 +57,7 @@
     "glob": "^7.1.2",
     "glob-promise": "^3.4.0",
     "mocha": "^5.2.0",
+    "seedrandom": "^2.4.3",
     "shelljs": "^0.8.2",
     "tslib": "^1.9.3"
   }
