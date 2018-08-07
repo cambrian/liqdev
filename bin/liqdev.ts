@@ -14,8 +14,8 @@ import { spawn } from 'child_process'
 import { test } from '@src/test'
 
 const compile = createCompiler(config.compilerPath)
-const runGlobally = process.argv[0] === config.commandName
-console.log(process.argv[0], config.commandName)
+const globalBinPath = exec('npm bin -g', { silent: true }).stdout.toString().slice(0, -1) // Lol.
+const runGlobally = process.argv[1] === globalBinPath + '/' + config.commandName
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
 
 // Hard-coded but should eventually be an option.

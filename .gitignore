@@ -64,3 +64,4 @@ build/
 liquidity/
 *.liq
 *.liq.tz
+*.liq.init.tz
