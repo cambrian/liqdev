@@ -8,3 +8,11 @@ then
   kill -9 $PID_USING_18731
   sleep 1
 fi
+
+PID_USING_18731_PART_2=$(lsof -i :18731 | awk 'END {print $2}')
+if [ ! -z "$PID_USING_18731_PART_2" ]
+then
+  echo "Running kill one more time to be sure..."
+  kill -9 $PID_USING_18731_PART_2
+  sleep 1
+fi

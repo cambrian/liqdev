@@ -13,7 +13,7 @@ import { spawn } from 'child_process'
 import { test } from './test'
 
 const compile = createCompiler(config.compilerPath)
-const globalBinPath = exec('npm bin -g', { silent: true }).stdout.toString().slice(0, -1) // Lol.
+const globalBinPath = exec('npm bin -g', { silent: true }).stdout.toString().slice(0, -1) // Lmao.
 const runGlobally = process.argv[1] === globalBinPath + '/' + config.commandName
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
 
@@ -51,22 +51,22 @@ program
   .command('setup')
   .description('install Liquidity and Tezos')
   .action(() => exec(runGlobally ? config.setupPath.global : config.setupPath.local))
+  .action(() => process.exit(0)) // TODO: Figure out a more sustainable solution.
 
 program
   .command('sandbox')
   .description('run sandbox Tezos network and set up client in shell')
   .action(verifySetup)
   .action(() => exec(runGlobally ? config.killPath.global : config.killPath.local))
-  .action(() => exec(runGlobally ? config.killPath.global : config.killPath.local, {
-    silent: true // Run kill again because sometimes once isn't enough...
-  }))
   .action(() => spawn(runGlobally ? config.bakerPath.global
     : config.bakerPath.local, [], { detached: true, stdio: 'inherit' }).unref())
+  .action(() => process.exit(0))
 
 program
   .command('kill')
   .description('kills sandbox Tezos network')
   .action(() => exec(runGlobally ? config.killPath.global : config.killPath.local))
+  .action(() => process.exit(0))
 
 program
   .command('build [contract]')
@@ -75,6 +75,7 @@ program
   .action((contract) => contract
     ? compile(contract + '.liq')
     : startWatcher(compile))
+  .action(() => process.exit(0))
 
 program
   .command('test [glob]')
@@ -82,12 +83,14 @@ program
   .option('-g, --generate', 'generate or overwrite expected outputs')
   .action(verifySetup)
   .action((contractGlob, args) => test(compile, eztz, contractGlob, args))
+  .action(() => process.exit(0))
 
 program
   .command('deploy')
   .description('deploy contract to any of the tezos networks')
   .action(verifySetup)
   .action(() => exec(runGlobally ? config.deployPath.global : config.deployPath.local))
+  .action(() => process.exit(0))
 
 program
   .parse(process.argv)
