@@ -2,6 +2,9 @@ export const commandName = 'liqdev'
 export const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
 export const defaultProvider = 'http://127.0.0.1:18731'
 
+export const unitTestExtension = '.utest.json'
+export const integrationTestExtension = '.itest.json'
+
 export const setupPath = {
   local: './lib/setup.sh',
   global: 'liqdev-setup'
