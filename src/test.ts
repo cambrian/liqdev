@@ -5,9 +5,8 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Address, EZTZ, Key, Path, TestCaseData } from './types'
+import { Address, Compiler, EZTZ, Key, Path, TestCaseData } from './types'
 
-import { Compiler } from '@src/build'
 import { diffJson } from 'diff'
 
 // TODO: Finish all of these functions.
@@ -30,8 +29,6 @@ const diffToString = (diff: JsDiff.IDiffResult[]) => {
   return s
 }
 
-const jsonDiff = (a: any, b: any) => diffToString(diffJson(a, b))
-
 const diffIsEmpty = (diff: JsDiff.IDiffResult[]) => {
   for (let part of diff) {
     if (part.added || part.removed) return false
@@ -46,7 +43,7 @@ const testContract = async (
 ) => {
   let suite = new Mocha.Suite(contractPath)
   let runner = new Mocha.Runner(suite, false)
-  // runner is never called explicitly but necessary to create
+  // runner is never called explicitly but is necessary to create
   let _ = new Mocha.reporters.Spec(runner)
 
   for (let test of tests) {
@@ -94,7 +91,7 @@ const genTestData = async (
     test.expectedStorage = await runCase(eztz, contractPath, test)
   }
   console.log('Inspect generated diff. Any changes will be highlighted.')
-  console.log(jsonDiff(oldTests, tests))
+  console.log(diffToString(diffJson(oldTests, tests)))
   let ok = await promptYesNo('Ok?', { def: false })
   if (!ok) {
     console.log('Generated data not ok. Preserving old test data for "' + contractPath + '".')
