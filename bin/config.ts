@@ -26,3 +26,10 @@ export const deployPath = {
   local: './lib/deploy.sh',
   global: 'liqdev-deploy'
 }
+
+// Bootstrap 1 in the sandbox.
+export const testAccount = {
+  pk: 'edpkuBknW28nW72KG6RoHtYW7p12T6GKc7nAbwYX5m8Wd9sDVC9yav',
+  pkh: 'tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx',
+  sk: 'edsk3gUfUPyBSfrS9CCgmCiQsTCHGkviBDusMxDJstFtojtc1zcpsh'
+}

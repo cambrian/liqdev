@@ -21,3 +21,8 @@ export declare const deployPath: {
     local: string;
     global: string;
 };
+export declare const testAccount: {
+    pk: string;
+    pkh: string;
+    sk: string;
+};

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 require('module-alias/register')
 
 import * as config from './config'
@@ -16,6 +15,7 @@ import { test } from '@src/test'
 
 const compile = createCompiler(config.compilerPath)
 const runGlobally = process.argv[0] === config.commandName
+console.log(process.argv[0], config.commandName)
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
 
 // Hard-coded but should eventually be an option.
