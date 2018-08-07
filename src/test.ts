@@ -95,13 +95,10 @@ async function genIntegrationTestData (eztz: EZTZ, testFiles: Path[]) {
   }
 }
 
-/**
- * @param f should return the proposed new test file as a json object
- */
-async function genTestData (testFile: Path, f: () => Promise<any>) {
+async function genTestData (testFile: Path, getProposedTestFile: () => Promise<any>) {
   let current = await fs.readJson(testFile)
   console.log('Generating new test data for "' + testFile + '"...')
-  let proposed = await f()
+  let proposed = await getProposedTestFile()
   console.log('Inspect generated diff. Any changes will be highlighted.')
   console.log(diffToString(diffJson(current, proposed)))
   let ok = await promptYesNo('Ok?', { def: false })
@@ -113,9 +110,9 @@ async function genTestData (testFile: Path, f: () => Promise<any>) {
   }
 }
 
-function makeTest (name: string, f: () => Promise<{ actual: any, expected: any }>) {
+function makeMochaTest (name: string, runTest: () => Promise<{ actual: any, expected: any }>) {
   return new Mocha.Test(name, async () => {
-    let { actual, expected } = await f()
+    let { actual, expected } = await runTest()
     let diff = diffJson(expected, actual)
     if (!diffIsEmpty(diff)) {
       let s = diffToString(diff)
@@ -131,10 +128,10 @@ function unitTestSuite (
   let suite = new Mocha.Suite('Unit Tests')
   for (let { michelsonFile, testFile } of testFilePairs) {
     let tests: Test.Unit[] = fs.readJsonSync(testFile) // TODO: can/should be async?
+    // TODO: validate tests object against Test.Unit[]
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
-      s.addTest(makeTest(testFile, async () => {
-        // TODO: validate test object against Test.Unit format
+      s.addTest(makeMochaTest(testFile, async () => {
         let actual = await runUnitTest(eztz, michelsonFile, test)
         return { actual, expected: test.expected }
       }))
@@ -147,9 +144,9 @@ function unitTestSuite (
 function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
   let suite = new Mocha.Suite('Integration Tests')
   for (let testFile of testFiles) {
-    suite.addTest(makeTest(testFile, async () => {
+    suite.addTest(makeMochaTest(testFile, async () => {
       let testData: Test.Integration = await fs.readJson(testFile)
-      // TODO: validate test object against Test.Integration format
+      // TODO: validate test object against Test.Integration
       let actual = await runIntegrationTest(eztz, testData)
       return { actual, expected: testData.expected }
     }))

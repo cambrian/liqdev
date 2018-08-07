@@ -1,5 +1,2 @@
-import * as eztz from 'eztz';
-import { Compiler } from './types';
-export declare const test: (compile: Compiler, eztz: typeof eztz.eztz, contractGlob: string, { generate }: {
-    generate: boolean;
-}) => Promise<void>;
+import { Compiler, EZTZ, TestCmdParams } from './types';
+export declare function test(compile: Compiler, eztz: EZTZ, { glob, generate, unit, integration }: TestCmdParams): Promise<void>;
