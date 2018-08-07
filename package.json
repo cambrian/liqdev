@@ -58,6 +58,6 @@
     "shelljs": "^0.8.2"
   },
   "_moduleAliases": {
-    "@src": "build/src"
+    "@src": "dist/src"
   }
 }
