@@ -100,7 +100,7 @@ async function genIntegrationTestData (eztz: EZTZ, testFiles: Path[]) {
  */
 async function genTestData (testFile: Path, f: () => Promise<any>) {
   let current = await fs.readJson(testFile)
-  console.log('Generating new expected data for "' + testFile + '"...')
+  console.log('Generating new test data for "' + testFile + '"...')
   let proposed = await f()
   console.log('Inspect generated diff. Any changes will be highlighted.')
   console.log(diffToString(diffJson(current, proposed)))
@@ -193,21 +193,4 @@ export async function test (
     if (integration) suite.addSuite(integrationTestSuite(eztz, integrationTestFiles))
     runner.run()
   }
-
-  // for (let file of files) {
-  //   if (!file.endsWith('.utest.json') || !file.endsWith('.itest.json')) continue
-  //   let testFile = file + '.test.json'
-  //   let testData = await readTestData(testFile)
-  //   if (!testData.exists) {
-  //     console.warn('Test file not found for "' + file + '". Skipping...')
-  //     continue
-  //   }
-  //   if (!testData.valid) {
-  //     console.error('Invalid test file for "' + file + '". Skipping...')
-  //     continue
-  //   }
-  //   compile(file)
-  //   if (generate) await genUnitTestData(eztz, file, testData.tests, testFile)
-  //   else await unitTestContract(eztz, file, testData.tests)
-  // }
 }
