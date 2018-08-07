@@ -1,6 +1,6 @@
 {
   "name": "liqdev",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Swiss army knife for Liquidity development.",
   "bin": {
     "liqdev": "dist/bin/liqdev.js",
