@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-require('module-alias/register')
 
 import * as config from './config'
 import * as fs from 'fs'
