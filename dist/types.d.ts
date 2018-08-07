@@ -2,14 +2,17 @@
 import { ExecOutputReturnValue } from 'shelljs';
 import { eztz } from 'eztz';
 export declare type Address = string;
+export declare type Account = eztz.Keys;
+export declare type CallResult = eztz.contract.SendResult;
 export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
 export declare type Diff = JsDiff.IDiffResult[];
 export declare type EZTZ = typeof eztz;
-export declare type Key = string;
+export declare type Key = eztz.Key;
+export declare type KeyHash = eztz.KeyHash;
 export declare type Path = string;
 export declare type Sexp = string;
+export declare type StorageResult = eztz.contract.StorageResult;
 export declare type TestCmdParams = {
-    glob: Path;
     generate: boolean;
     unit: boolean;
     integration: boolean;

@@ -5,8 +5,10 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as program from 'commander'
 
+import { account, balance, call, storage } from './client'
 import { createCompiler, startWatcher } from './build'
 
+import { KeyGen } from './keygen'
 import { exec } from 'shelljs'
 import { eztz } from 'eztz'
 import { spawn } from 'child_process'
@@ -48,6 +50,16 @@ program
   })
 
 program
+  .command('sanjay')
+  .description('remove this eventually')
+  .action(() => {
+    const keyGen = new KeyGen(eztz, 0)
+    account(eztz, keyGen, eztz.crypto.extractKeys(config.testAccount.sk), 1337)
+      .then(newAccount => balance(eztz, newAccount))
+      .then(console.log)
+  })
+
+program
   .command('setup')
   .description('install Liquidity and Tezos')
   .action(() => exec(runGlobally ? config.setupPath.global : config.setupPath.local))
@@ -84,8 +96,7 @@ program
   .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
-  .action((glob, args) => test(compile, eztz, args, glob))
-  .action(() => process.exit(0))
+  .action((glob, args) => test(compile, eztz, args, glob).then(() => process.exit(0)))
 
 program
   .command('deploy')

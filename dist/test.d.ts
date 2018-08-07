@@ -1,2 +1,5 @@
 import { Compiler, EZTZ, TestCmdParams } from './types';
-export declare function test(compile: Compiler, eztz: EZTZ, { glob, generate, unit, integration }: TestCmdParams): Promise<void>;
+/**
+ * @param glob Matches contracts AND test files (leave out extension)
+ */
+export declare function test(compile: Compiler, eztz: EZTZ, { generate, unit, integration }: TestCmdParams, glob?: string): Promise<void>;

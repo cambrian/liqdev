@@ -3,6 +3,7 @@ export declare const compilerPath = "~/.liqdev/liquidity/_obuild/liquidity/liqui
 export declare const defaultProvider = "http://127.0.0.1:18731";
 export declare const unitTestExtension = ".utest.json";
 export declare const integrationTestExtension = ".itest.json";
+export declare const seed = 0;
 export declare const setupPath: {
     local: string;
     global: string;
