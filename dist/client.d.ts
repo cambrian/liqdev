@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Account, CallResult, EZTZ, KeyHash, Path, Sexp, StorageResult } from './types';
 import { KeyGen } from './keygen';
 export declare function deploy(eztz: EZTZ, keyGen: KeyGen, deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash>;
@@ -7,6 +6,3 @@ export declare function account(eztz: EZTZ, keyGen: KeyGen, originator: Account,
 export declare function transfer(eztz: EZTZ, from: Account, to: Account, amount: number): Promise<void>;
 export declare function balance(eztz: EZTZ, account: Account): Promise<number>;
 export declare function storage(eztz: EZTZ, contract: KeyHash): Promise<StorageResult>;
-=======
-export {};
->>>>>>> 27240027dcf375418c7b1f72b4b3eaee48fb188a
