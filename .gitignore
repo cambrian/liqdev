@@ -65,3 +65,6 @@ liquidity/
 *.liq
 *.liq.tz
 *.liq.init.tz
+
+# Remove this later
+test.js

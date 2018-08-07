@@ -73,14 +73,15 @@ program
   .description('compile Liquidity contracts (omit parameter to watch)')
   .action(verifySetup)
   .action((contract) => contract
-    ? compile(contract + '.liq')
+    ? compile(contract + '.liq') && process.exit(0)
     : startWatcher(compile))
-  .action(() => process.exit(0))
 
 program
   .command('test [glob]')
   .description('test Liquidity files matching a glob pattern')
   .option('-g, --generate', 'generate or overwrite expected outputs')
+  .option('-u, --unit', 'run only unit tests')
+  .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
   .action((contractGlob, args) => test(compile, eztz, contractGlob, args))

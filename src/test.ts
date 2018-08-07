@@ -11,13 +11,6 @@ import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } f
 
 import { diffJson } from 'diff'
 
-// TODO: Finish all of these functions.
-const deploy = async (eztz: EZTZ, accountSK: Key, contractFile: Path, storage: Sexp) => ''
-
-// const fund = (eztz: EZTZ, fromSK: Key, toPKH: Address, amount: Number) => null
-
-const call = async (eztz: EZTZ, contract: Address, accountSK: Key, parameters: Sexp) => Object()
-
 async function runUnitTest (eztz: EZTZ, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
   // TODO
   // let contract = await deploy(eztz, testAccount.sk, contractFile, testData.initialStorage)
