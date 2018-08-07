@@ -58,8 +58,7 @@ jspm_packages/
 .next
 
 # Build output
-# we actually need the built stuff in the repo for npm
-# build/
+build/
 
 # Liquidity output
 liquidity/

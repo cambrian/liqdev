@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Swiss army knife for Liquidity development.",
   "bin": {
-    "liqdev": "dist/liqdev.js",
+    "liqdev": "dist/bin/liqdev.js",
     "liqdev-baker": "lib/baker.sh",
     "liqdev-client": "lib/client.sh",
     "liqdev-deploy": "lib/deploy.sh",
@@ -11,7 +11,8 @@
     "liqdev-setup": "lib/setup.sh"
   },
   "scripts": {
-    "build": "rm -rf build && tsc && mkdir -p dist && cp build/bin/* dist && chmod +x dist/liqdev.js && chmod +x lib/*",
+    "build": "tsc && chmod +x dist/bin/liqdev.js && chmod +x lib/*",
+    "clean": "rm -rf build",
     "lint": "tslint --project tsconfig.json --format stylish",
     "test": "echo"
   },
