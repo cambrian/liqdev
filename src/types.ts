@@ -20,7 +20,7 @@ export interface Client {
     parameters: Sexp | null,
     amount: number
   ): Promise<CallResult>
-  account (registry: Registry, originator: Name, balance: number): Promise<Registry>
+  account (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
   transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
   balance (registry: Registry, account: Name): Promise<number>
   storage (registry: Registry, contract: Name): Promise<StorageResult>
