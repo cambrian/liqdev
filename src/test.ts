@@ -182,8 +182,9 @@ export async function test (
     _.map(unitTestFiles, testFile =>
       ({
         testFile,
-        michelsonFile: testFile.substr(0, testFile.length - config.unitTestExtension.length) + '.tz'
-      }))
+        michelsonFile: _.trimEnd(testFile, config.unitTestExtension) + '.tz'
+      })
+    )
   let integrationTestFiles = _.filter(files, f => f.endsWith(config.integrationTestExtension))
 
   if (generate) {
