@@ -1,23 +1,28 @@
 /// <reference types="diff" />
+import * as I from 'immutable';
 import { ExecOutputReturnValue } from 'shelljs';
 import { eztz } from 'eztz';
-export declare type Address = string;
 export declare type Account = eztz.Keys;
 export declare type CallResult = eztz.contract.SendResult;
 export interface Client {
-    deploy(deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash>;
-    call(caller: Account, contract: KeyHash, parameters: Sexp | null, amount: number): Promise<CallResult>;
-    account(originator: Account, balance: number): Promise<Account>;
-    transfer(from: Account, to: Account, amount: number): Promise<void>;
-    balance(account: Account): Promise<number>;
-    storage(contract: KeyHash): Promise<StorageResult>;
+    deploy(registry: Registry, name: Name, deployer: Name, contractFile: Path, storage: Sexp, balance: number): Promise<Registry>;
+    call(registry: Registry, caller: Name, contract: Name, parameters: Sexp, amount: number): Promise<CallResult>;
+    implicit(registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>;
+    transfer(registry: Registry, from: Name, to: Name, amount: number): Promise<void>;
+    balance(registry: Registry, account: Name): Promise<number>;
+    storage(registry: Registry, contract: Name): Promise<StorageResult>;
 }
 export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
 export declare type Diff = JsDiff.IDiffResult[];
 export declare type EZTZ = typeof eztz;
 export declare type Key = eztz.Key;
 export declare type KeyHash = eztz.KeyHash;
+export declare type Name = string;
 export declare type Path = string;
+export interface Registry {
+    accounts: I.Map<Name, Account>;
+    contracts: I.Map<Name, KeyHash>;
+}
 export declare type Sexp = string;
 export declare type StorageResult = eztz.contract.StorageResult;
 export declare type TestCmdParams = {
@@ -27,11 +32,11 @@ export declare type TestCmdParams = {
 };
 export declare namespace Test {
     interface Account {
-        name: string;
+        name: Name;
         balance: number;
     }
     interface Contract {
-        name: string;
+        name: Name;
         file: Path;
         balance: number;
         storage: Sexp | object;
@@ -44,7 +49,7 @@ export declare namespace Test {
         }
         interface Call {
             amount: number;
-            caller: string;
+            caller: Name;
             params: Sexp;
         }
     }
@@ -61,8 +66,8 @@ export declare namespace Test {
         }
         interface Call {
             amount: number;
-            caller: string;
-            contract: string;
+            caller: Name;
+            contract: Name;
             params: Sexp;
         }
     }
