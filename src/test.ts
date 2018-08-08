@@ -13,12 +13,10 @@ import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
-const diffJson = (a: any, b: any) => {
-  if (a === undefined) {
-    console.warn('a was ')
-    a = null
-  }
-  if (b === undefined) b = null
+const diffJson = (
+  a: any, b: any, { replaceUndefinedWithNull } = { replaceUndefinedWithNull: true }) => {
+  if (replaceUndefinedWithNull && a === undefined) a = null
+  if (replaceUndefinedWithNull && b === undefined) b = null
   return _diffJson(a, b)
 }
 
@@ -56,11 +54,11 @@ const diffIsEmpty = (diff: Diff) => {
 
 const rl = readline.createInterface(process.stdin, process.stdout)
 
-const promptYesNo = async (prompt: string, { def }: { def: boolean }) => {
+const promptYesNo = async (prompt: string, { defaultValue }: { defaultValue: boolean }) => {
   let loop = (resolve: any) => { // too lazy to write out the type for resolve
-    rl.question(prompt + (def ? ' (y)/n: ' : ' y/(n): '), input => {
+    rl.question(prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): '), input => {
       if (input === '') {
-        resolve(def)
+        resolve(defaultValue)
       } else if (input.toLowerCase() === 'y') {
         resolve(true)
       } else if (input.toLowerCase() === 'n') {
@@ -105,7 +103,7 @@ async function genTestData (testFile: Path, getProposedTestFile: () => Promise<a
   let proposed = await getProposedTestFile()
   console.log('Inspect generated diff. Any changes will be highlighted.')
   console.log(diffToString(diffJson(current, proposed)))
-  let ok = await promptYesNo('Ok?', { def: false })
+  let ok = await promptYesNo('Ok?', { defaultValue: false })
   if (!ok) {
     console.log('Generated data not ok. Preserving old test data for "' + testFile + '".')
   } else {
