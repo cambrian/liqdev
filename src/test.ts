@@ -11,7 +11,6 @@ import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } f
 
 import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
-import { resolve } from 'dns'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
 const diffJson = (a: any, b: any) => {
