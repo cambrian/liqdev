@@ -4,6 +4,7 @@ import { Registry } from './types'
 export const bootstrapAccount = 'bootstrap1'
 export const commandName = 'liqdev'
 export const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
+export const tezosClientPath = '~/.liqdev/.tezos-client-path'
 export const defaultProvider = 'http://127.0.0.1:18731'
 
 export const unitTestExtension = '.utest.json'
