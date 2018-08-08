@@ -9,6 +9,7 @@ export type CallResult = eztz.contract.SendResult // TODO: See eztz.d.ts.
 export interface Client {
   deploy (
     registry: Registry,
+    name: Name,
     deployer: Name,
     contractFile: Path,
     storage: Sexp
@@ -20,7 +21,8 @@ export interface Client {
     parameters: Sexp | null,
     amount: number
   ): Promise<CallResult>
-  account (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
+  implicit (registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>
+  originate (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
   transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
   balance (registry: Registry, account: Name): Promise<number>
   storage (registry: Registry, contract: Name): Promise<StorageResult>
