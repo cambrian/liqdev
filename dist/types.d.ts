@@ -4,6 +4,14 @@ import { eztz } from 'eztz';
 export declare type Address = string;
 export declare type Account = eztz.Keys;
 export declare type CallResult = eztz.contract.SendResult;
+export interface Client {
+    deploy(deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash>;
+    call(caller: Account, contract: KeyHash, parameters: Sexp | null, amount: number): Promise<CallResult>;
+    account(originator: Account, balance: number): Promise<Account>;
+    transfer(from: Account, to: Account, amount: number): Promise<void>;
+    balance(account: Account): Promise<number>;
+    storage(contract: KeyHash): Promise<StorageResult>;
+}
 export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
 export declare type Diff = JsDiff.IDiffResult[];
 export declare type EZTZ = typeof eztz;
@@ -64,3 +72,4 @@ export declare namespace Test {
         expected: Integration.State;
     }
 }
+export declare type TezosClient = (command: string) => ExecOutputReturnValue;

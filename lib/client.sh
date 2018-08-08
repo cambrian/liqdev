@@ -11,7 +11,7 @@ mkdir -p $LOGDIR
 rm -f $LOGDIR/$SANDBOX_LOGDIR/*
 mkdir -p $LOGDIR/$SANDBOX_LOGDIR
 
-sleep 4 # Avoid race conditions with baker
+sleep 4 # Avoid race conditions with baker.
 echo "Initializing sandboxed client."
 shopt -s expand_aliases # Expose aliases in the shell script.
 eval `./liquidity/tezos/src/bin_client/tezos-init-sandboxed-client.sh 1`

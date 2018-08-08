@@ -31,6 +31,11 @@ export const deployPath = {
   global: 'liqdev-deploy'
 }
 
+export const whichPath = {
+  local: './lib/which.sh',
+  global: 'liqdev-which'
+}
+
 // Bootstrap 1 in the sandbox.
 export const testAccount = {
   pk: 'edpkuBknW28nW72KG6RoHtYW7p12T6GKc7nAbwYX5m8Wd9sDVC9yav',

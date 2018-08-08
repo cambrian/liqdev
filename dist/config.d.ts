@@ -24,6 +24,10 @@ export declare const deployPath: {
     local: string;
     global: string;
 };
+export declare const whichPath: {
+    local: string;
+    global: string;
+};
 export declare const testAccount: {
     pk: string;
     pkh: string;

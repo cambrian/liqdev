@@ -5,10 +5,11 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as program from 'commander'
 
-import { account, balance, call, storage } from './client'
+// import { account, balance, call, storage } from './client'
 import { createCompiler, startWatcher } from './build'
 
 import { KeyGen } from './keygen'
+import { TezosClient } from './types'
 import { exec } from 'shelljs'
 import { eztz } from 'eztz'
 import { spawn } from 'child_process'
@@ -18,6 +19,14 @@ const compile = createCompiler(config.compilerPath)
 const globalBinPath = exec('npm bin -g', { silent: true }).stdout.toString().slice(0, -1) // Lmao.
 const runGlobally = process.argv[1] === globalBinPath + '/' + config.commandName
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
+
+// Not called directly to defer its
+// execution (only test needs this)
+const makeTezosClient = (): TezosClient => {
+  const tezosClientPath = exec(runGlobally ? config.whichPath.global : config.whichPath.local +
+    '2 >& 1 | tail - 1').stdout.toString().slice(0, -1)
+  return (command: string) => exec(tezosClientPath + ' ' + command)
+}
 
 // Hard-coded but should eventually be an option.
 eztz.node.setProvider(config.defaultProvider)
@@ -53,10 +62,10 @@ program
   .command('sanjay')
   .description('remove this eventually')
   .action(() => {
-    const keyGen = new KeyGen(eztz, 0)
-    account(eztz, keyGen, eztz.crypto.extractKeys(config.testAccount.sk), 1337)
-      .then(newAccount => balance(eztz, newAccount))
-      .then(console.log)
+    // const keyGen = new KeyGen(eztz, 0)
+    // account(eztz, keyGen, eztz.crypto.extractKeys(config.testAccount.sk), 1337)
+    //   .then(newAccount => balance(eztz, newAccount))
+    //   .then(console.log)
   })
 
 program

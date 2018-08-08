@@ -3,11 +3,12 @@ import { Compiler, Path } from './types'
 import { exec } from 'shelljs'
 import { watch } from 'chokidar'
 
-export const createCompiler = (compilerPath: Path): Compiler =>
-  (contractPath: Path) => exec(compilerPath + ' ' + contractPath)
+export function createCompiler (compilerPath: Path): Compiler {
+  return (contractPath: Path) => exec(compilerPath + ' ' + contractPath)
+}
 
-export const startWatcher = (compile: Compiler) =>
-  watch('**/*.liq', { ignoreInitial: true })
+export function startWatcher (compile: Compiler) {
+  return watch('**/*.liq', { ignoreInitial: true })
     .on('add', (filePath: Path) => {
       console.log('Compiling new file ' + filePath + '.')
       compile(filePath)
@@ -16,3 +17,4 @@ export const startWatcher = (compile: Compiler) =>
       console.log('Compiling changed file ' + filePath + '.')
       compile(filePath)
     })
+}
