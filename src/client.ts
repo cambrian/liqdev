@@ -1,6 +1,5 @@
 import {
   Account,
-  Address,
   CallResult,
   Client,
   EZTZ,
@@ -56,8 +55,9 @@ function createStorageFn (eztz: EZTZ) {
   return async (contract: KeyHash): Promise<StorageResult> => eztz.contract.storage(contract)
 }
 
-export function createClient (eztz: EZTZ, tezosClient: TezosClient, keyGen: KeyGen): Client {
+export function createClient (eztz: EZTZ, tezosClient: TezosClient, { seed } = { seed: 0 }): Client {
   const transferFn = createTransferFn(eztz)
+  const keyGen = new KeyGen(eztz, seed)
   return {
     deploy: createDeployFn(tezosClient, keyGen),
     call: createCallFn(eztz),

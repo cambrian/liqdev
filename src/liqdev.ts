@@ -10,6 +10,7 @@ import { createCompiler, startWatcher } from './build'
 
 import { KeyGen } from './keygen'
 import { TezosClient } from './types'
+import { createClient } from './client'
 import { exec } from 'shelljs'
 import { eztz } from 'eztz'
 import { spawn } from 'child_process'
@@ -22,7 +23,7 @@ console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.
 
 // Not called directly to defer its
 // execution (only test needs this)
-const makeTezosClient = (): TezosClient => {
+const createTezosClient = (): TezosClient => {
   const tezosClientPath = exec(runGlobally ? config.whichPath.global : config.whichPath.local +
     '2 >& 1 | tail - 1').stdout.toString().slice(0, -1)
   return (command: string) => exec(tezosClientPath + ' ' + command)
@@ -105,7 +106,7 @@ program
   .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
-  .action((glob, args) => test(compile, eztz, args, glob).then(() => process.exit(0)))
+  .action((glob, args) => test(compile, createClient(eztz, createTezosClient(), new KeyGen(eztz, 0)), args, glob).then(() => process.exit(0)))
 // Note: Mocha seems to have some spooky bug where it doesn't wait for its tests.
 // Liqdev test gets interrupted mid-test by process.exit(0), so for now we're requiring the user to
 // manually ctrl-c.

@@ -58,6 +58,7 @@
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "glob-promise": "^3.4.0",
+    "immutable": "^3.8.2",
     "lodash": "^4.17.10",
     "mocha": "^5.2.0",
     "seedrandom": "^2.4.3",

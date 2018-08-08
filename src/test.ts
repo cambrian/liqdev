@@ -7,7 +7,7 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
+import { Client, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
 import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
@@ -145,11 +145,11 @@ async function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
 }
 
 /**
- * @param glob Matches contracts AND test files (so leave out the extension when calling this)
+ * @param globPattern Matches contracts AND test files (so leave out the extension when calling this)
  */
 export async function test (
   compile: Compiler,
-  eztz: EZTZ,
+  client: Client,
   {
     generate,
     unit,
@@ -162,7 +162,6 @@ export async function test (
     unit = true
     integration = true
   }
-  const keyGen = new KeyGen(eztz, config.seed)
   let files = await glob(globPattern)
 
   let contractFiles = _.filter(files, f => f.endsWith('.liq'))
