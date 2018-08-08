@@ -1,31 +1,52 @@
 import { ExecOutputReturnValue } from 'shelljs'
+import { Map } from 'immutable'
 import { eztz } from 'eztz'
 
-export type Address = string
 export type Account = eztz.Keys
+
 export type CallResult = eztz.contract.SendResult // TODO: See eztz.d.ts.
 
 export interface Client {
-  deploy (deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash>
+  deploy (
+    registry: Registry,
+    deployer: Name,
+    contractFile: Path,
+    storage: Sexp
+  ): Promise<Registry>
   call (
-    caller: Account,
-    contract: KeyHash,
+    registry: Registry,
+    caller: Name,
+    contract: Name,
     parameters: Sexp | null,
     amount: number
   ): Promise<CallResult>
-  account (originator: Account, balance: number): Promise<Account>
-  transfer (from: Account, to: Account, amount: number): Promise<void>
-  balance (account: Account): Promise<number>
-  storage (contract: KeyHash): Promise<StorageResult>
+  account (registry: Registry, originator: Name, balance: number): Promise<Registry>
+  transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
+  balance (registry: Registry, account: Name): Promise<number>
+  storage (registry: Registry, contract: Name): Promise<StorageResult>
 }
 
 export type Compiler = (contractPath: Path) => ExecOutputReturnValue
+
 export type Diff = JsDiff.IDiffResult[]
+
 export type EZTZ = typeof eztz
+
 export type Key = eztz.Key
+
 export type KeyHash = eztz.KeyHash
+
+export type Name = string // type for name on the tezos blockchain for accounts and contracts
+
 export type Path = string
+
+export interface Registry {
+  accounts: Map<Name, Account>
+  contracts: Map<Name, KeyHash>
+}
+
 export type Sexp = string
+
 export type StorageResult = eztz.contract.StorageResult
 
 export type TestCmdParams = {
@@ -36,12 +57,12 @@ export type TestCmdParams = {
 
 export namespace Test {
   export interface Account {
-    name: string
+    name: Name
     balance: number
   }
 
   export interface Contract {
-    name: string
+    name: Name
     file: Path
     balance: number
     storage: Sexp | object
@@ -55,7 +76,7 @@ export namespace Test {
     }
 
     export interface Call {
-      amount: number
+      amount: Name
       caller: string
       params: Sexp
     }
@@ -76,8 +97,8 @@ export namespace Test {
 
     export interface Call {
       amount: number
-      caller: string
-      contract: string
+      caller: Name
+      contract: Name
       params: Sexp
     }
   }
