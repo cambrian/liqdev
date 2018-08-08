@@ -19,19 +19,53 @@ function diffJson (
 }
 
 async function runUnitTest (client: Client, michelsonFile: Path, test: Test.Unit): Promise<Test.Unit.State> {
+  let contractName = michelsonFile + ':' + test.name
+  // Setup
   let registry = config.bootstrapRegistry
   for (let account of test.initial.accounts) {
     registry = await client.implicit(registry, account.name, 'bootstrap1', account.balance)
   }
-  // TODO
-  // let contract = await deploy(client, testAccount.sk, contractFile, testData.initialStorage)
-  // return call(client, contract, testAccount.sk, data.callParams)
-  return Object()
+  registry = await client.deploy(registry, contractName, 'bootstrap1', michelsonFile, test.initial.storage as string, test.initial.balance) // sus
+
+  // Call contract from bootstrap account
+  let storage = await client.call(registry, 'bootstrap1', contractName, test.call.params, test.call.amount)
+
+  // Get final state
+  let balance = await client.balance(registry, contractName) // Can we get this from .call?
+  let accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
+    ({ name, balance: await client.balance(registry, name) })
+  ))
+  return { storage, balance, accounts }
 }
 
 async function runIntegrationTest (client: Client, test: Test.Integration): Promise<Test.Integration.State> {
-  // TODO
-  return Object()
+  // Setup
+  let registry = config.bootstrapRegistry
+  for (let { name, balance } of test.initial.accounts) {
+    registry = await client.implicit(registry, name, 'bootstrap1', balance)
+  }
+  for (let { name, file, balance, storage } of test.initial.contracts) {
+    registry = await client.deploy(registry, name, 'bootstrap1', file, storage as string, balance) // sus
+  }
+
+  // Make contract calls
+  for (let { amount, caller, contract, params } of test.calls) {
+    await client.call(registry, caller, contract, params, amount)
+  }
+
+  // Get final state
+  let contracts = await Promise.all(_.map(test.initial.contracts, async ({ name, file }) =>
+    ({
+      name,
+      file,
+      balance: await client.balance(registry, name),
+      storage: await client.storage(registry, name)
+    })
+  ))
+  let accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
+    ({ name, balance: await client.balance(registry, name) })
+  ))
+  return { accounts, contracts }
 }
 
 function diffToString (diff: Diff) {
