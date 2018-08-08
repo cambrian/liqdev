@@ -4,8 +4,8 @@ import * as colors from 'colors'
 import * as config from './config'
 import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
+import * as glob from 'glob-promise'
 import * as readline from 'readline'
-import * as runGlob from 'glob-promise'
 
 import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
@@ -111,9 +111,8 @@ async function genTestData (testFile: Path, getProposedTestFile: () => Promise<a
   }
 }
 
-function makeMochaTest (name: string, runTest: () => Promise<{ actual: any, expected: any }>) {
-  return new Mocha.Test(name, async () => {
-    let { actual, expected } = await runTest()
+function makeMochaTest (name: string, { expected, actual }: { expected: any, actual: any }) {
+  return new Mocha.Test(name, () => {
     let diff = diffJson(expected, actual)
     if (!diffIsEmpty(diff)) {
       let s = diffToString(diff)
@@ -122,7 +121,7 @@ function makeMochaTest (name: string, runTest: () => Promise<{ actual: any, expe
   })
 }
 
-function unitTestSuite (
+async function unitTestSuite (
   eztz: EZTZ,
   testFilePairs: { michelsonFile: Path, testFile: Path }[]
 ) {
@@ -132,25 +131,21 @@ function unitTestSuite (
     // TODO: validate tests object against Test.Unit[]
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
-      s.addTest(makeMochaTest(test.name, async () => {
-        let actual = await runUnitTest(eztz, michelsonFile, test)
-        return { actual, expected: test.expected }
-      }))
+      let actual = await runUnitTest(eztz, michelsonFile, test)
+      s.addTest(makeMochaTest(test.name, { actual, expected: test.expected }))
     }
     suite.addSuite(s)
   }
   return suite
 }
 
-function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
+async function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
   let suite = new Mocha.Suite('Integration Tests')
   for (let testFile of testFiles) {
-    suite.addTest(makeMochaTest(testFile, async () => {
-      let testData: Test.Integration = await fs.readJson(testFile)
-      // TODO: validate test object against Test.Integration
-      let actual = await runIntegrationTest(eztz, testData)
-      return { actual, expected: testData.expected }
-    }))
+    let testData: Test.Integration = await fs.readJson(testFile)
+    // TODO: validate test object against Test.Integration
+    let actual = await runIntegrationTest(eztz, testData)
+    suite.addTest(makeMochaTest(testFile, { expected: testData.expected, actual }))
   }
   return suite
 }
@@ -166,15 +161,15 @@ export async function test (
     unit,
     integration
   }: TestCmdParams,
-  glob = '**/*'
+  globPattern = '**/*'
 ) {
+  console.log(globPattern)
   if (!unit && !integration) {
     unit = true
     integration = true
   }
   const keyGen = new KeyGen(eztz, config.seed)
-  let files = await runGlob(glob) // BUG: not working??
-  console.log(files)
+  let files = await glob(globPattern)
 
   let contractFiles = _.filter(files, f => f.endsWith('.liq'))
   for (let contractFile of contractFiles) compile(contractFile)
@@ -192,12 +187,12 @@ export async function test (
     if (unit) await genUnitTestData(eztz, unitTestFilePairs)
     if (integration) await genIntegrationTestData(eztz, integrationTestFiles)
   } else {
-    let suite = new Mocha.Suite('Liqdev Tests')
-    let runner = new Mocha.Runner(suite, false)
-    // runner is never called explicitly but is necessary to create
-    let _runner = new Mocha.reporters.Spec(runner)
-    if (unit) suite.addSuite(unitTestSuite(eztz, unitTestFilePairs))
-    if (integration) suite.addSuite(integrationTestSuite(eztz, integrationTestFiles))
+    let mocha = new Mocha()
+    let runner = new Mocha.Runner(mocha.suite, false)
+    // reporter is never called explicitly but is necessary to create
+    let _reporter = new Mocha.reporters.Spec(runner)
+    if (unit) mocha.suite.addSuite(await unitTestSuite(eztz, unitTestFilePairs))
+    if (integration) mocha.suite.addSuite(await integrationTestSuite(eztz, integrationTestFiles))
     runner.run()
   }
 }
