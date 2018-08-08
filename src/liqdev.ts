@@ -63,7 +63,7 @@ program
   .description('remove this eventually')
   .action(() => {
     const client = createClient(eztz, createTezosClient(), { seed: 20 })
-    client.deploy(config.bootstrapRegistry, 'hlorl', 'bootstrap1', 'helloworld.liq.tz', '(Pair "hello world" 0)', 0).then(console.log)
+    client.deploy(config.bootstrapRegistry, 'hlorl', 'bootstrap1', 'helloworld.liq.tz', '(Pair "hello world" 0)', 0).then(console.log).catch(console.log)
     // client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
     //   .then(async registry => {
     //     // exec('sleep 2')

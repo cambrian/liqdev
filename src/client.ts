@@ -14,7 +14,6 @@ import {
   TezosClient
 } from './types'
 
-import { ChildProcess } from 'child_process'
 import { ExecOutputReturnValue } from 'shelljs'
 import { KeyGen } from './keygen'
 
@@ -109,7 +108,7 @@ function implicit (
     if (registry.contracts.get(name)) throw Error('account name ' + name + ' shared by a contract')
 
     const newRegistry = updateAccounts(registry, registry.accounts.set(name, account))
-    transferFn(newRegistry, creator, name, balance)
+    await transferFn(newRegistry, creator, name, balance)
     return newRegistry
   }
 }
@@ -123,8 +122,8 @@ function transfer (eztz: EZTZ) {
     if (!toPKH) throw Error('to name ' + to + ' not found')
 
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, amount, 0, null, 100000, 0)
-      .then(() => undefined)
+    await eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, amount, 0, null, 100000, 0)
+    return
   }
 }
 
