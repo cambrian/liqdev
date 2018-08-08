@@ -13,14 +13,15 @@ export interface Client {
     name: Name,
     deployer: Name,
     contractFile: Path,
-    storage: Sexp
+    storage: Sexp,
+    amount: number
   ): Promise<Registry>
 
   call (
     registry: Registry,
     caller: Name,
     contract: Name,
-    parameters: Sexp | null,
+    parameters: Sexp,
     amount: number
   ): Promise<CallResult>
 
@@ -80,19 +81,19 @@ export namespace Test {
     name: Name
     file: Path
     balance: number
-    storage: Sexp | object
+    storage: Sexp | object // is a sexp in inital, object in [expected]
   }
 
   export namespace Unit {
     export interface State {
-      storage: Sexp | object
+      storage: Sexp | object // is a sexp in inital, object in [expected]
       balance: number
       accounts: Account[]
     }
 
     export interface Call {
-      amount: Name
-      caller: string
+      amount: number
+      caller: Name
       params: Sexp
     }
   }
