@@ -8,10 +8,11 @@ brew tap ocaml/ocaml
 brew install git opam@2 libsodium libffi pandoc
 export OPAMYES=true # Spooky.
 opam init --no-setup --enable-shell-hook
-if [ -d "~/.liqdev/liquidity/tezos/_opam" ]
+if [ -d ~/.liqdev/liquidity/tezos/_opam ]
 then
   echo "Existing liqdev setup found... Keeping tezos ocaml switch."
-  mv "~/.liqdev/liquidity/tezos/_opam" "~/.liqdevtezosopam"
+  rm -rf ~/.liqdevtezosopam
+  mv ~/.liqdev/liquidity/tezos/_opam ~/.liqdevtezosopam
 fi
 rm -rf ~/.liqdev
 mkdir ~/.liqdev
@@ -19,9 +20,9 @@ cd ~/.liqdev
 git clone https://github.com/OCamlPro/liquidity.git
 cd liquidity
 make clone-tezos
-if [ -d "~/.liqdevtezosopam" ]
+if [ -d ~/.liqdevtezosopam ]
 then
-  mv "~/.liqdevtezosopam" "~/.liqdev/liquidity/tezos/_opam"
+  mv ~/.liqdevtezosopam ~/.liqdev/liquidity/tezos/_opam
 fi
 
 # Make clone-tezos sets up an ocaml switch strictly
