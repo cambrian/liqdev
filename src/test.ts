@@ -178,13 +178,10 @@ export async function test (
   for (let contractFile of contractFiles) compile(contractFile)
 
   let unitTestFiles = _.filter(files, f => f.endsWith(config.unitTestExtension))
-  let unitTestFilePairs =
-    _.map(unitTestFiles, testFile =>
-      ({
-        testFile,
-        michelsonFile: _.trimEnd(testFile, config.unitTestExtension) + '.tz'
-      })
-    )
+  let unitTestFilePairs = _.map(unitTestFiles, testFile => ({
+    testFile,
+    michelsonFile: _.trimEnd(testFile, config.unitTestExtension) + '.tz'
+  }))
   let integrationTestFiles = _.filter(files, f => f.endsWith(config.integrationTestExtension))
 
   if (generate) {
