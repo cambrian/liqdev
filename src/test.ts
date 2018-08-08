@@ -126,8 +126,9 @@ function diffIsEmpty (diff: Diff) {
 const rl = readline.createInterface(process.stdin, process.stdout)
 
 async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: boolean }) {
+  prompt = prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): ')
   while (1) {
-    let input = await new Promise<string>((resolve, _) => rl.question(prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): '), resolve))
+    let input = await new Promise<string>((resolve, _) => rl.question(prompt, resolve))
     if (input === '') return defaultValue
     if (input.toLowerCase() === 'y') return true
     if (input.toLowerCase() === 'n') return false
@@ -161,10 +162,10 @@ async function genIntegrationTestData (client: Client, testFiles: Path[]) {
   }
 }
 
-async function genTestData (testFile: Path, getProposedTestFile: () => Promise<any>) {
+async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>) {
   let current = await fs.readJson(testFile)
   console.log('Generating new test data for "' + testFile + '"...')
-  let proposed = await getProposedTestFile()
+  let proposed = await proposedTestFile()
   console.log('Inspect generated diff. Any changes will be highlighted.')
   console.log(diffToString(diffJson(current, proposed)))
   let ok = await promptYesNo('Ok?', { defaultValue: false })
