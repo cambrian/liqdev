@@ -128,7 +128,7 @@ async function unitTestSuite (
 ) {
   let suite = new Mocha.Suite('Unit Tests')
   for (let { michelsonFile, testFile } of testFilePairs) {
-    let tests: Test.Unit[] = fs.readJsonSync(testFile) // TODO: can/should be async?
+    let tests: Test.Unit[] = await fs.readJson(testFile)
     // TODO: validate tests object against Test.Unit[]
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
