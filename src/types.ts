@@ -1,5 +1,6 @@
+import * as I from 'immutable'
+
 import { ExecOutputReturnValue } from 'shelljs'
-import { Map } from 'immutable'
 import { eztz } from 'eztz'
 
 export type Account = eztz.Keys
@@ -14,6 +15,7 @@ export interface Client {
     contractFile: Path,
     storage: Sexp
   ): Promise<Registry>
+
   call (
     registry: Registry,
     caller: Name,
@@ -21,10 +23,20 @@ export interface Client {
     parameters: Sexp | null,
     amount: number
   ): Promise<CallResult>
+
   implicit (registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>
-  // originate (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
+
+  // originate (
+  //   registry: Registry,
+  //   name: Name,
+  //   originator: Name,
+  //   balance: number
+  // ): Promise<Registry>
+
   transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
+
   balance (registry: Registry, account: Name): Promise<number>
+
   storage (registry: Registry, contract: Name): Promise<StorageResult>
 }
 
@@ -43,8 +55,8 @@ export type Name = string // Type for name on the Tezos blockchain for accounts 
 export type Path = string
 
 export interface Registry {
-  accounts: Map<Name, Account>
-  contracts: Map<Name, KeyHash>
+  accounts: I.Map<Name, Account>
+  contracts: I.Map<Name, KeyHash>
 }
 
 export type Sexp = string

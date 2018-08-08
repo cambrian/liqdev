@@ -1,4 +1,7 @@
+import * as I from 'immutable'
+
 import {
+  Account,
   CallResult,
   Client,
   EZTZ,
@@ -13,10 +16,17 @@ import {
 
 import { KeyGen } from './keygen'
 
+function updateAccounts (registry: Registry, accounts: I.Map<Name, Account>): Registry {
+  return {
+    accounts: accounts,
+    contracts: registry.contracts
+  }
+}
+
 function deploy (tezosClient: TezosClient, keyGen: KeyGen) {
   return async (
     registry: Registry,
-    deployer: Account,
+    deployer: Name,
     contractFile: Path,
     storage: Sexp
   ): Promise<Registry> => Promise.reject('unimplemented')
@@ -31,22 +41,30 @@ function call (eztz: EZTZ) {
     contract: Name,
     parameters: Sexp | null = null,
     amount: number = 0
-  ): Promise<CallResult> =>
+  ): Promise<CallResult> => {
+    const callerKeys = registry.accounts.get(caller)
+    const contractPKH = registry.contracts.get(contract)
+
+    if (!callerKeys) return Promise.reject('caller name ' + caller + ' not found')
+    if (!contractPKH) return Promise.reject('contract name ' + contract + ' not found')
+
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    Promise.reject('unimplemented')
-  // eztz.contract.send(contract, caller.pkh, caller, amount, parameters, 0, 100000, 0)
+    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, amount, parameters, 0,
+      100000, 0)
+  }
 }
 
-function account (
+function implicit (
   eztz: EZTZ,
   keyGen: KeyGen,
   transferFn: (registry: Registry, from: Name, to: Name, amount: number) => Promise<void>
 ) {
   return async (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry> => {
-    return Promise.reject('unimplemented')
-    // const account = keyGen.nextAccount()
+    const account = keyGen.nextAccount()
+    const newRegistry = registry.accounts.
     // transferFn(originator, account, balance)
     // return account
+    return Promise.reject()
   }
 }
 
@@ -80,7 +98,7 @@ export function createClient (
   return {
     deploy: deploy(tezosClient, keyGen),
     call: call(eztz),
-    account: account(eztz, keyGen, transferFn),
+    implicit: implicit(eztz, keyGen, transferFn),
     transfer: transferFn,
     balance: balance(eztz),
     storage: storage(eztz)
