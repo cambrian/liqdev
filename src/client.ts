@@ -1,10 +1,11 @@
 import {
-  Account,
   CallResult,
   Client,
   EZTZ,
   KeyHash,
+  Name,
   Path,
+  Registry,
   Sexp,
   StorageResult,
   TezosClient
@@ -12,58 +13,76 @@ import {
 
 import { KeyGen } from './keygen'
 
-function createDeployFn (tezosClient: TezosClient, keyGen: KeyGen) {
-  return async (deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash> => Promise.reject('unimplemented')
+function deploy (tezosClient: TezosClient, keyGen: KeyGen) {
+  return async (
+    registry: Registry,
+    deployer: Account,
+    contractFile: Path,
+    storage: Sexp
+  ): Promise<Registry> => Promise.reject('unimplemented')
 }
 
 // Eventually you will be able to
 // specify a different entry point.
-function createCallFn (eztz: EZTZ) {
+function call (eztz: EZTZ) {
   return async (
-    caller: Account,
-    contract: KeyHash,
+    registry: Registry,
+    caller: Name,
+    contract: Name,
     parameters: Sexp | null = null,
     amount: number = 0
   ): Promise<CallResult> =>
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    eztz.contract.send(contract, caller.pkh, caller, amount, parameters, 0, 100000, 0)
+    Promise.reject('unimplemented')
+  // eztz.contract.send(contract, caller.pkh, caller, amount, parameters, 0, 100000, 0)
 }
 
-function createAccountFn (
+function account (
   eztz: EZTZ,
   keyGen: KeyGen,
-  transferFn: (from: Account, to: Account, amount: number) => Promise<void>
+  transferFn: (registry: Registry, from: Name, to: Name, amount: number) => Promise<void>
 ) {
-  return async (originator: Account, balance: number): Promise<Account> => {
-    const account = keyGen.nextAccount()
-    transferFn(originator, account, balance)
-    return account
+  return async (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry> => {
+    return Promise.reject('unimplemented')
+    // const account = keyGen.nextAccount()
+    // transferFn(originator, account, balance)
+    // return account
   }
 }
 
-function createTransferFn (eztz: EZTZ) {
-  return async (from: Account, to: Account, amount: number): Promise<void> =>
-    // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    eztz.rpc.transfer(from.pkh, from, to.pkh, amount, 0, null, 100000, 0).then(() => undefined)
+function transfer (eztz: EZTZ) {
+  return async (registry: Registry, from: Name, to: Name, amount: number): Promise<void> =>
+    Promise.reject('unimplemented')
+  // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
+  // eztz.rpc.transfer(from.pkh, from, to.pkh, amount, 0, null, 100000, 0).then(() => undefined)
 }
 
-function createBalanceFn (eztz: EZTZ) {
-  return async (account: Account): Promise<number> => eztz.rpc.getBalance(account.pkh)
+function balance (eztz: EZTZ) {
+  return async (registry: Registry, account: Name): Promise<number> =>
+    Promise.reject('unimplemented')
+  // eztz.rpc.getBalance(account.pkh)
 }
 
-function createStorageFn (eztz: EZTZ) {
-  return async (contract: KeyHash): Promise<StorageResult> => eztz.contract.storage(contract)
+function storage (eztz: EZTZ) {
+  return async (registry: Registry, contract: Name): Promise<StorageResult> =>
+    Promise.reject('unimplemented')
+  // eztz.contract.storage(contract)
 }
 
-export function createClient (eztz: EZTZ, tezosClient: TezosClient, { seed } = { seed: 0 }): Client {
-  const transferFn = createTransferFn(eztz)
+export function createClient (
+  eztz: EZTZ,
+  tezosClient: TezosClient,
+  { seed } = { seed: 0 }
+): Client {
+  const transferFn = transfer(eztz)
   const keyGen = new KeyGen(eztz, seed)
+
   return {
-    deploy: createDeployFn(tezosClient, keyGen),
-    call: createCallFn(eztz),
-    account: createAccountFn(eztz, keyGen, transferFn),
+    deploy: deploy(tezosClient, keyGen),
+    call: call(eztz),
+    account: account(eztz, keyGen, transferFn),
     transfer: transferFn,
-    balance: createBalanceFn(eztz),
-    storage: createStorageFn(eztz)
+    balance: balance(eztz),
+    storage: storage(eztz)
   }
 }

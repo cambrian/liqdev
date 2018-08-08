@@ -36,7 +36,7 @@ export type Key = eztz.Key
 
 export type KeyHash = eztz.KeyHash
 
-export type Name = string // type for name on the tezos blockchain for accounts and contracts
+export type Name = string // Type for name on the Tezos blockchain for accounts and contracts.
 
 export type Path = string
 
