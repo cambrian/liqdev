@@ -2,12 +2,11 @@ import * as Mocha from 'mocha'
 import * as _ from 'lodash'
 import * as colors from 'colors'
 import * as config from './config'
-import * as eztz from 'eztz'
 import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Client, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } from './types'
+import { Client, Compiler, Diff, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
 import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
@@ -20,14 +19,14 @@ function diffJson (
   return _diffJson(a, b)
 }
 
-async function runUnitTest (eztz: EZTZ, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
+async function runUnitTest (client: Client, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
   // TODO
-  // let contract = await deploy(eztz, testAccount.sk, contractFile, testData.initialStorage)
-  // return call(eztz, contract, testAccount.sk, data.callParams)
+  // let contract = await deploy(client, testAccount.sk, contractFile, testData.initialStorage)
+  // return call(client, contract, testAccount.sk, data.callParams)
   return Object()
 }
 
-async function runIntegrationTest (eztz: EZTZ, testData: Test.Integration): Promise<Test.Integration.State> {
+async function runIntegrationTest (client: Client, testData: Test.Integration): Promise<Test.Integration.State> {
   // TODO
   return Object()
 }
@@ -66,25 +65,25 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
 }
 
 async function genUnitTestData (
-  eztz: EZTZ,
+  client: Client,
   testFilePairs: { michelsonFile: Path, testFile: Path }[]
 ) {
   for (let { michelsonFile, testFile } of testFilePairs) {
     await genTestData(testFile, async () => {
       let tests: Test.Unit[] = await fs.readJson(testFile)
       for (let test of tests) {
-        test.expected = await runUnitTest(eztz, michelsonFile, test)
+        test.expected = await runUnitTest(client, michelsonFile, test)
       }
       return tests
     })
   }
 }
 
-async function genIntegrationTestData (eztz: EZTZ, testFiles: Path[]) {
+async function genIntegrationTestData (client: Client, testFiles: Path[]) {
   for (let testFile of testFiles) {
     await genTestData(testFile, async () => {
       let testData = await fs.readJson(testFile)
-      testData.expected = runIntegrationTest(eztz, testData)
+      testData.expected = runIntegrationTest(client, testData)
       return testData
     })
   }
@@ -116,7 +115,7 @@ function mochaTest (name: string, { expected, actual }: { expected: any, actual:
 }
 
 async function unitTestSuite (
-  eztz: EZTZ,
+  client: Client,
   testFilePairs: { michelsonFile: Path, testFile: Path }[]
 ) {
   let suite = new Mocha.Suite('Unit Tests')
@@ -125,7 +124,7 @@ async function unitTestSuite (
     // TODO: validate tests object against Test.Unit[]
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
-      let actual = await runUnitTest(eztz, michelsonFile, test)
+      let actual = await runUnitTest(client, michelsonFile, test)
       s.addTest(mochaTest(test.name, { actual, expected: test.expected }))
     }
     suite.addSuite(s)
@@ -133,12 +132,12 @@ async function unitTestSuite (
   return suite
 }
 
-async function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
+async function integrationTestSuite (client: Client, testFiles: Path[]) {
   let suite = new Mocha.Suite('Integration Tests')
   for (let testFile of testFiles) {
     let testData: Test.Integration = await fs.readJson(testFile)
     // TODO: validate test object against Test.Integration
-    let actual = await runIntegrationTest(eztz, testData)
+    let actual = await runIntegrationTest(client, testData)
     suite.addTest(mochaTest(testFile, { expected: testData.expected, actual }))
   }
   return suite
@@ -175,12 +174,12 @@ export async function test (
   let integrationTestFiles = _.filter(files, f => f.endsWith(config.integrationTestExtension))
 
   if (generate) {
-    if (unit) await genUnitTestData(eztz, unitTestFilePairs)
-    if (integration) await genIntegrationTestData(eztz, integrationTestFiles)
+    if (unit) await genUnitTestData(client, unitTestFilePairs)
+    if (integration) await genIntegrationTestData(client, integrationTestFiles)
   } else {
     let mocha = new Mocha()
-    if (unit) mocha.suite.addSuite(await unitTestSuite(eztz, unitTestFilePairs))
-    if (integration) mocha.suite.addSuite(await integrationTestSuite(eztz, integrationTestFiles))
+    if (unit) mocha.suite.addSuite(await unitTestSuite(client, unitTestFilePairs))
+    if (integration) mocha.suite.addSuite(await integrationTestSuite(client, integrationTestFiles))
     await new Promise((resolve, _) => mocha.run(resolve))
   }
 }
