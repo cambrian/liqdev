@@ -11,6 +11,7 @@ import { Address, Compiler, Diff, EZTZ, Key, Path, Sexp, Test, TestCmdParams } f
 
 import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
+import { resolve } from 'dns'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
 const diffJson = (a: any, b: any) => {
@@ -191,11 +192,8 @@ export async function test (
     if (integration) await genIntegrationTestData(eztz, integrationTestFiles)
   } else {
     let mocha = new Mocha()
-    let runner = new Mocha.Runner(mocha.suite, false)
-    // reporter is never called explicitly but is necessary to create
-    let _reporter = new Mocha.reporters.Spec(runner)
     if (unit) mocha.suite.addSuite(await unitTestSuite(eztz, unitTestFilePairs))
     if (integration) mocha.suite.addSuite(await integrationTestSuite(eztz, integrationTestFiles))
-    runner.run()
+    await new Promise((resolve, _) => mocha.run(resolve))
   }
 }

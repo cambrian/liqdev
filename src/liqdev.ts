@@ -96,7 +96,7 @@ program
   .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
-  .action((glob, args) => test(compile, eztz, args, glob) /* .then(() => process.exit(0)) */)
+  .action((glob, args) => test(compile, eztz, args, glob).then(() => process.exit(0)))
 // Note: Mocha seems to have some spooky bug where it doesn't wait for its tests.
 // Liqdev test gets interrupted mid-test by process.exit(0), so for now we're requiring the user to
 // manually ctrl-c.
