@@ -14,7 +14,10 @@ import { diffJson as _diffJson } from 'diff'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
 const diffJson = (a: any, b: any) => {
-  if (a === undefined) a = null
+  if (a === undefined) {
+    console.warn('a was ')
+    a = null
+  }
   if (b === undefined) b = null
   return _diffJson(a, b)
 }
@@ -111,7 +114,7 @@ async function genTestData (testFile: Path, getProposedTestFile: () => Promise<a
   }
 }
 
-function makeMochaTest (name: string, { expected, actual }: { expected: any, actual: any }) {
+function mochaTest (name: string, { expected, actual }: { expected: any, actual: any }) {
   return new Mocha.Test(name, () => {
     let diff = diffJson(expected, actual)
     if (!diffIsEmpty(diff)) {
@@ -132,7 +135,7 @@ async function unitTestSuite (
     let s = new Mocha.Suite(testFile)
     for (let test of tests) {
       let actual = await runUnitTest(eztz, michelsonFile, test)
-      s.addTest(makeMochaTest(test.name, { actual, expected: test.expected }))
+      s.addTest(mochaTest(test.name, { actual, expected: test.expected }))
     }
     suite.addSuite(s)
   }
@@ -145,7 +148,7 @@ async function integrationTestSuite (eztz: EZTZ, testFiles: Path[]) {
     let testData: Test.Integration = await fs.readJson(testFile)
     // TODO: validate test object against Test.Integration
     let actual = await runIntegrationTest(eztz, testData)
-    suite.addTest(makeMochaTest(testFile, { expected: testData.expected, actual }))
+    suite.addTest(mochaTest(testFile, { expected: testData.expected, actual }))
   }
   return suite
 }

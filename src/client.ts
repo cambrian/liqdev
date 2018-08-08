@@ -1,8 +1,8 @@
-import { Account, Address, CallResult, EZTZ, KeyHash, Path, Sexp } from './types'
+import { Account, Address, CallResult, EZTZ, KeyHash, Path, Sexp, StorageResult } from './types'
 
 import { KeyGen } from './keygen'
 
-async function deploy (
+export async function deploy (
   eztz: EZTZ,
   keyGen: KeyGen,
   deployer: Account,
@@ -12,35 +12,45 @@ async function deploy (
   return Promise.reject('unimplemented')
 }
 
-// Eventually you will be able to specify a different entry point.
-async function call (eztz: EZTZ, keyGen: KeyGen, contract: KeyHash, parameters: Sexp): Promise<CallResult> {
-  return Promise.reject('unimplemented')
+// Eventually you will be able to
+// specify a different entry point.
+export async function call (
+  eztz: EZTZ,
+  caller: Account,
+  contract: KeyHash,
+  parameters: Sexp | null = null,
+  amount: number = 0
+): Promise<CallResult> {
+  // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
+  return eztz.contract.send(contract, caller.pkh, caller, amount, parameters, 0, 100000, 0)
 }
 
-async function originate (
+export async function account (
   eztz: EZTZ,
   keyGen: KeyGen,
   originator: Account,
   balance: number
 ): Promise<Account> {
-  return Promise.reject('unimplemented')
+  const account = keyGen.nextAccount()
+  transfer(eztz, originator, account, balance)
+  return account
 }
 
-async function transfer (
+export async function transfer (
   eztz: EZTZ,
-  keyGen: KeyGen,
   from: Account,
   to: Account,
   amount: number
 ): Promise<void> {
-  return Promise.reject('unimplemented')
+  // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
+  return eztz.rpc.transfer(from.pkh, from, to.pkh, amount, 0, null, 100000, 0)
+    .then(() => undefined)
 }
 
-async function balance (eztz: EZTZ, keyGen: KeyGen, account: Account): Promise<number> {
-  return Promise.reject('unimplemented')
+export async function balance (eztz: EZTZ, account: Account): Promise<number> {
+  return eztz.rpc.getBalance(account.pkh)
 }
 
-// TODO: Update any after pull.
-async function storage (eztz: EZTZ, keyGen: KeyGen, contract: KeyHash): Promise<any> {
-  return Promise.reject('unimplemented')
+export async function storage (eztz: EZTZ, contract: KeyHash): Promise<StorageResult> {
+  return eztz.contract.storage(contract)
 }
