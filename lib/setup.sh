@@ -1,5 +1,6 @@
 #!/bin/bash
-if ! [ -x "$(command -v brew)" ]; then
+if ! [ -x "$(command -v brew)" ]
+then
   echo 'Installing Homebrew.'
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
@@ -7,12 +8,21 @@ brew tap ocaml/ocaml
 brew install git opam@2 libsodium libffi pandoc
 export OPAMYES=true # Spooky.
 opam init --no-setup --enable-shell-hook
+if [ -d "~/.liqdev/liquidity/tezos/_opam" ]
+then
+  echo "Existing liqdev setup found... Keeping tezos ocaml switch."
+  mv "~/.liqdev/liquidity/tezos/_opam" "~/.liqdevtezosopam"
+fi
 rm -rf ~/.liqdev
 mkdir ~/.liqdev
 cd ~/.liqdev
 git clone https://github.com/OCamlPro/liquidity.git
 cd liquidity
 make clone-tezos
+if [ -d "~/.liqdevtezosopam" ]
+then
+  mv "~/.liqdevtezosopam" "~/.liqdev/liquidity/tezos/_opam"
+fi
 
 # Make clone-tezos sets up an ocaml switch strictly
 # for building tezos (has a minimal package list).

@@ -6,7 +6,7 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as readline from 'readline'
 
-import { Client, Compiler, Diff, Key, Path, Sexp, Test, TestCmdParams } from './types'
+import { Client, Compiler, Diff, Path, Test, TestCmdParams } from './types'
 
 import { diffJson as _diffJson } from 'diff'
 
