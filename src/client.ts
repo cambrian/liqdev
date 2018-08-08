@@ -1,10 +1,14 @@
+import * as I from 'immutable'
+
 import {
   Account,
   CallResult,
   Client,
   EZTZ,
   KeyHash,
+  Name,
   Path,
+  Registry,
   Sexp,
   StorageResult,
   TezosClient
@@ -12,58 +16,91 @@ import {
 
 import { KeyGen } from './keygen'
 
-function createDeployFn (tezosClient: TezosClient, keyGen: KeyGen) {
-  return async (deployer: Account, contractFile: Path, storage: Sexp): Promise<KeyHash> => Promise.reject('unimplemented')
+function updateAccounts (registry: Registry, accounts: I.Map<Name, Account>): Registry {
+  return {
+    accounts: accounts,
+    contracts: registry.contracts
+  }
+}
+
+function deploy (tezosClient: TezosClient, keyGen: KeyGen) {
+  return async (
+    registry: Registry,
+    deployer: Name,
+    contractFile: Path,
+    storage: Sexp
+  ): Promise<Registry> => Promise.reject('unimplemented')
 }
 
 // Eventually you will be able to
 // specify a different entry point.
-function createCallFn (eztz: EZTZ) {
+function call (eztz: EZTZ) {
   return async (
-    caller: Account,
-    contract: KeyHash,
+    registry: Registry,
+    caller: Name,
+    contract: Name,
     parameters: Sexp | null = null,
     amount: number = 0
-  ): Promise<CallResult> =>
-    // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    eztz.contract.send(contract, caller.pkh, caller, amount, parameters, 0, 100000, 0)
-}
+  ): Promise<CallResult> => {
+    const callerKeys = registry.accounts.get(caller)
+    const contractPKH = registry.contracts.get(contract)
 
-function createAccountFn (
-  eztz: EZTZ,
-  keyGen: KeyGen,
-  transferFn: (from: Account, to: Account, amount: number) => Promise<void>
-) {
-  return async (originator: Account, balance: number): Promise<Account> => {
-    const account = keyGen.nextAccount()
-    transferFn(originator, account, balance)
-    return account
+    if (!callerKeys) return Promise.reject('caller name ' + caller + ' not found')
+    if (!contractPKH) return Promise.reject('contract name ' + contract + ' not found')
+
+    // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
+    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, amount, parameters, 0,
+      100000, 0)
   }
 }
 
-function createTransferFn (eztz: EZTZ) {
-  return async (from: Account, to: Account, amount: number): Promise<void> =>
-    // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    eztz.rpc.transfer(from.pkh, from, to.pkh, amount, 0, null, 100000, 0).then(() => undefined)
+function implicit (
+  eztz: EZTZ,
+  keyGen: KeyGen,
+  transferFn: (registry: Registry, from: Name, to: Name, amount: number) => Promise<void>
+) {
+  return async (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry> => {
+    const account = keyGen.nextAccount()
+    const newRegistry = registry.accounts.
+    // transferFn(originator, account, balance)
+    // return account
+    return Promise.reject()
+  }
 }
 
-function createBalanceFn (eztz: EZTZ) {
-  return async (account: Account): Promise<number> => eztz.rpc.getBalance(account.pkh)
+function transfer (eztz: EZTZ) {
+  return async (registry: Registry, from: Name, to: Name, amount: number): Promise<void> =>
+    Promise.reject('unimplemented')
+  // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
+  // eztz.rpc.transfer(from.pkh, from, to.pkh, amount, 0, null, 100000, 0).then(() => undefined)
 }
 
-function createStorageFn (eztz: EZTZ) {
-  return async (contract: KeyHash): Promise<StorageResult> => eztz.contract.storage(contract)
+function balance (eztz: EZTZ) {
+  return async (registry: Registry, account: Name): Promise<number> =>
+    Promise.reject('unimplemented')
+  // eztz.rpc.getBalance(account.pkh)
 }
 
-export function createClient (eztz: EZTZ, tezosClient: TezosClient, { seed } = { seed: 0 }): Client {
-  const transferFn = createTransferFn(eztz)
+function storage (eztz: EZTZ) {
+  return async (registry: Registry, contract: Name): Promise<StorageResult> =>
+    Promise.reject('unimplemented')
+  // eztz.contract.storage(contract)
+}
+
+export function createClient (
+  eztz: EZTZ,
+  tezosClient: TezosClient,
+  { seed } = { seed: 0 }
+): Client {
+  const transferFn = transfer(eztz)
   const keyGen = new KeyGen(eztz, seed)
+
   return {
-    deploy: createDeployFn(tezosClient, keyGen),
-    call: createCallFn(eztz),
-    account: createAccountFn(eztz, keyGen, transferFn),
+    deploy: deploy(tezosClient, keyGen),
+    call: call(eztz),
+    implicit: implicit(eztz, keyGen, transferFn),
     transfer: transferFn,
-    balance: createBalanceFn(eztz),
-    storage: createStorageFn(eztz)
+    balance: balance(eztz),
+    storage: storage(eztz)
   }
 }
