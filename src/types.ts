@@ -1,5 +1,6 @@
 import * as I from 'immutable'
 
+import { ChildProcess } from 'child_process'
 import { ExecOutputReturnValue } from 'shelljs'
 import { eztz } from 'eztz'
 

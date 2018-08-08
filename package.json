@@ -8,8 +8,7 @@
     "liqdev-client": "lib/client.sh",
     "liqdev-deploy": "lib/deploy.sh",
     "liqdev-kill": "lib/kill.sh",
-    "liqdev-setup": "lib/setup.sh",
-    "liqdev-which": "lib/which.sh"
+    "liqdev-setup": "lib/setup.sh"
   },
   "scripts": {
     "build": "rm -rf dist && tsc && chmod +x dist/liqdev.js && chmod +x lib/*",

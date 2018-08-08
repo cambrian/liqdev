@@ -23,8 +23,8 @@ console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.
 // Not called directly to defer its
 // execution (only test needs this)
 const createTezosClient = (): TezosClient => {
-  const tezosClientPath = exec(runGlobally ? config.whichPath.global : config.whichPath.local +
-    '2 >& 1 | tail - 1').stdout.toString().slice(0, -1)
+  const tezosClientPath = fs.readFileSync(config.tezosClientPath.replace(/^~/, os.homedir()))
+    .slice(0, -1) // Lmao again (strip new line character).
   return (command: string) => exec(tezosClientPath + ' ' + command)
 }
 
@@ -63,13 +63,14 @@ program
   .description('remove this eventually')
   .action(() => {
     const client = createClient(eztz, createTezosClient(), { seed: 20 })
-    client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
-      .then(async registry => {
-        // exec('sleep 2')
-        await new Promise((r, _) => setTimeout(r, 250))
-        return registry
-      })
-      .then(registry => client.balance(registry, 'test')).then(console.log)
+    client.deploy(config.bootstrapRegistry, 'hlorl', 'bootstrap1', 'helloworld.liq.tz', '(Pair "hello world" 0)', 0).then(console.log)
+    // client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
+    //   .then(async registry => {
+    //     // exec('sleep 2')
+    //     await new Promise((r, _) => setTimeout(r, 250))
+    //     return registry
+    //   })
+    //   .then(registry => client.balance(registry, 'test')).then(console.log)
   })
 
 program

@@ -14,6 +14,8 @@ import {
   TezosClient
 } from './types'
 
+import { ChildProcess } from 'child_process'
+import { ExecOutputReturnValue } from 'shelljs'
 import { KeyGen } from './keygen'
 
 function updateAccounts (registry: Registry, accounts: I.Map<Name, Account>): Registry {
@@ -38,7 +40,15 @@ function findPKH (registry: Registry, name: Name): (KeyHash | undefined) {
   return undefined
 }
 
-function deploy (tezosClient: TezosClient, keyGen: KeyGen) {
+function clientAlias (
+  tezosClient: TezosClient,
+  account: Account,
+  name: Name
+): ExecOutputReturnValue {
+  return tezosClient('add address ' + name + ' ' + account.pkh)
+}
+
+function deploy (tezosClient: TezosClient) {
   return async (
     registry: Registry,
     name: Name,
@@ -46,7 +56,19 @@ function deploy (tezosClient: TezosClient, keyGen: KeyGen) {
     contractFile: Path,
     storage: Sexp,
     balance: number
-  ): Promise<Registry> => Promise.reject('unimplemented')
+  ): Promise<Registry> => {
+    const deployerAccount = registry.accounts.get(deployer)
+    if (!deployerAccount) throw new Error('deployer name ' + deployerAccount + ' not found')
+    clientAlias(tezosClient, deployerAccount, deployer)
+
+    const result = tezosClient('originate contract ' + name + ' for ' + deployer +
+      ' transferring ' + balance.toString() + ' from ' + deployer + ' running ' + contractFile +
+      ' --init \'' + storage + '\' | grep \'New contract\' | tr \' \' \'\n\' | sed -n \'x; $p\'')
+    const contractAddress = result.stdout.slice(0, -1)
+
+    if (contractAddress.length === 0) throw new Error('contract deploy failed')
+    return updateContracts(registry, registry.contracts.set(name, contractAddress))
+  }
 }
 
 // Eventually you will be able to
@@ -132,7 +154,7 @@ export function createClient (
   const keyGen = new KeyGen(eztz, seed)
 
   return {
-    deploy: deploy(tezosClient, keyGen),
+    deploy: deploy(tezosClient),
     call: call(eztz),
     implicit: implicit(eztz, keyGen, transferFn),
     transfer: transferFn,
