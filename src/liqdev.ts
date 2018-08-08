@@ -8,7 +8,6 @@ import * as program from 'commander'
 // import { account, balance, call, storage } from './client'
 import { createCompiler, startWatcher } from './build'
 
-import { KeyGen } from './keygen'
 import { TezosClient } from './types'
 import { createClient } from './client'
 import { exec } from 'shelljs'
@@ -63,10 +62,14 @@ program
   .command('sanjay')
   .description('remove this eventually')
   .action(() => {
-    // const keyGen = new KeyGen(eztz, 0)
-    // account(eztz, keyGen, eztz.crypto.extractKeys(config.testAccount.sk), 1337)
-    //   .then(newAccount => balance(eztz, newAccount))
-    //   .then(console.log)
+    const client = createClient(eztz, createTezosClient(), { seed: 20 })
+    client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
+      .then(async registry => {
+        // exec('sleep 2')
+        await new Promise((r, _) => setTimeout(r, 250))
+        return registry
+      })
+      .then(registry => client.balance(registry, 'test')).then(console.log)
   })
 
 program

@@ -14,7 +14,7 @@ export interface Client {
     deployer: Name,
     contractFile: Path,
     storage: Sexp,
-    amount: number
+    balance: number
   ): Promise<Registry>
 
   call (

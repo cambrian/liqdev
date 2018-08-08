@@ -7,10 +7,19 @@ export const defaultProvider = 'http://127.0.0.1:18731'
 
 export const unitTestExtension = '.utest.json'
 export const integrationTestExtension = '.itest.json'
+export const clientWait = 250
 export const seed = 0
 
+export const bootstrapAccounts = {
+  bootstrap1: {
+    sk: 'edskRuR1azSfboG86YPTyxrQgosh5zChf5bVDmptqLTb5EuXAm9rsnDYfTKhq7rDQujdn5WWzwUMeV3agaZ6J2vPQT58jJAJPi',
+    pk: 'edpkuBknW28nW72KG6RoHtYW7p12T6GKc7nAbwYX5m8Wd9sDVC9yav',
+    pkh: 'tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx'
+  }
+}
+
 export const bootstrapRegistry: Registry = {
-  accounts: Map(),
+  accounts: Map(bootstrapAccounts),
   contracts: Map()
 }
 
@@ -42,11 +51,4 @@ export const deployPath = {
 export const whichPath = {
   local: './lib/which.sh',
   global: 'liqdev-which'
-}
-
-// Bootstrap 1 in the sandbox.
-export const testAccount = {
-  pk: 'edpkuBknW28nW72KG6RoHtYW7p12T6GKc7nAbwYX5m8Wd9sDVC9yav',
-  pkh: 'tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx',
-  sk: 'edsk3gUfUPyBSfrS9CCgmCiQsTCHGkviBDusMxDJstFtojtc1zcpsh'
 }
