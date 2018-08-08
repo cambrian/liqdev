@@ -1,3 +1,4 @@
+import * as I from 'immutable'
 import * as Mocha from 'mocha'
 import * as _ from 'lodash'
 import * as colors from 'colors'
@@ -138,13 +139,46 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
   throw new Error('unreachable')
 }
 
+// provide helpful defaults to the test writer
+async function readUnitTestData (file: Path) {
+  const tests: Test.Unit[] = await fs.readJson(file)
+  for (const test of tests) {
+    if (!test.initial.balance) test.initial.balance = 0
+    if (!test.initial.accounts) test.initial.accounts = []
+    for (const account of test.initial.accounts) {
+      if (!account.balance) account.balance = 0
+    }
+    if (!test.call.amount) test.call.amount = 0
+    if (!test.call.caller) test.call.caller = config.bootstrapAccount
+  }
+  return tests
+}
+
+// provide helpful defaults to the test writer
+async function readIntegrationTestData (file: Path) {
+  const test: Test.Integration = await fs.readJson(file)
+  if (!test.initial.accounts) test.initial.accounts = []
+  for (const account of test.initial.accounts) {
+    if (!account.balance) account.balance = 0
+  }
+  if (!test.initial.contracts) throw new Error('No contracts in integration test data: ' + file)
+  for (const contract of test.initial.contracts) {
+    if (!contract.balance) contract.balance = 0
+  }
+  for (const call of test.calls) {
+    if (!call.amount) call.amount = 0
+    if (!call.caller) call.caller = config.bootstrapAccount
+  }
+  return test
+}
+
 async function genUnitTestData (
   client: Client,
   testFilePairs: { michelsonFile: Path, testFile: Path }[]
 ) {
   for (const { michelsonFile, testFile } of testFilePairs) {
     await genTestData(testFile, async () => {
-      const tests: Test.Unit[] = await fs.readJson(testFile)
+      const tests = await readUnitTestData(testFile)
       for (const test of tests) {
         test.expected = await runUnitTest(client, michelsonFile, test)
       }
@@ -194,8 +228,7 @@ async function unitTestSuite (
 ) {
   const suite = new Mocha.Suite('Unit Tests')
   for (const { michelsonFile, testFile } of testFilePairs) {
-    const tests: Test.Unit[] = await fs.readJson(testFile)
-    // TODO: Validate tests object against Test.Unit[].
+    const tests = await readUnitTestData(testFile)
     const s = new Mocha.Suite(testFile)
     for (const test of tests) {
       const actual = await runUnitTest(client, michelsonFile, test)
@@ -209,10 +242,9 @@ async function unitTestSuite (
 async function integrationTestSuite (client: Client, testFiles: Path[]) {
   const suite = new Mocha.Suite('Integration Tests')
   for (const testFile of testFiles) {
-    const testData: Test.Integration = await fs.readJson(testFile)
-    // TODO: Validate test object against Test.Integration.
-    const actual = await runIntegrationTest(client, testData)
-    suite.addTest(mochaTest(testFile, { expected: testData.expected, actual }))
+    const test = await readIntegrationTestData(testFile)
+    const actual = await runIntegrationTest(client, test)
+    suite.addTest(mochaTest(testFile, { expected: test.expected, actual }))
   }
   return suite
 }
