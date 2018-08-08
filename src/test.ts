@@ -18,17 +18,38 @@ function diffJson (
   return _diffJson(a, b)
 }
 
-async function runUnitTest (client: Client, michelsonFile: Path, test: Test.Unit): Promise<Test.Unit.State> {
+async function runUnitTest (
+  client: Client,
+  michelsonFile: Path,
+  test: Test.Unit
+): Promise<Test.Unit.State> {
   let contractName = michelsonFile + ':' + test.name
   // Setup
   let registry = config.bootstrapRegistry
-  for (let account of test.initial.accounts) {
-    registry = await client.implicit(registry, account.name, 'bootstrap1', account.balance)
+  for (let { name, balance } of test.initial.accounts) {
+    registry = await client.implicit(
+      registry,
+      name,
+      config.bootstrapAccount,
+      balance)
   }
-  registry = await client.deploy(registry, contractName, 'bootstrap1', michelsonFile, test.initial.storage as string, test.initial.balance) // sus
+  registry = await client.deploy(
+    registry,
+    contractName,
+    config.bootstrapAccount,
+    michelsonFile,
+    test.initial.storage as string, // sus
+    test.initial.balance
+  )
 
   // Call contract from bootstrap account
-  let storage = await client.call(registry, 'bootstrap1', contractName, test.call.params, test.call.amount)
+  let storage = await client.call(
+    registry,
+    config.bootstrapAccount,
+    contractName,
+    test.call.params,
+    test.call.amount
+  )
 
   // Get final state
   let balance = await client.balance(registry, contractName) // Can we get this from .call?
@@ -38,14 +59,28 @@ async function runUnitTest (client: Client, michelsonFile: Path, test: Test.Unit
   return { storage, balance, accounts }
 }
 
-async function runIntegrationTest (client: Client, test: Test.Integration): Promise<Test.Integration.State> {
+async function runIntegrationTest (
+  client: Client,
+  test: Test.Integration
+): Promise<Test.Integration.State> {
   // Setup
   let registry = config.bootstrapRegistry
   for (let { name, balance } of test.initial.accounts) {
-    registry = await client.implicit(registry, name, 'bootstrap1', balance)
+    registry = await client.implicit(
+      registry,
+      name,
+      config.bootstrapAccount,
+      balance)
   }
   for (let { name, file, balance, storage } of test.initial.contracts) {
-    registry = await client.deploy(registry, name, 'bootstrap1', file, storage as string, balance) // sus
+    registry = await client.deploy(
+      registry,
+      name,
+      config.bootstrapAccount,
+      file,
+      storage as string, // sus
+      balance
+    )
   }
 
   // Make contract calls
@@ -54,6 +89,9 @@ async function runIntegrationTest (client: Client, test: Test.Integration): Prom
   }
 
   // Get final state
+  let accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
+    ({ name, balance: await client.balance(registry, name) })
+  ))
   let contracts = await Promise.all(_.map(test.initial.contracts, async ({ name, file }) =>
     ({
       name,
@@ -61,9 +99,6 @@ async function runIntegrationTest (client: Client, test: Test.Integration): Prom
       balance: await client.balance(registry, name),
       storage: await client.storage(registry, name)
     })
-  ))
-  let accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
-    ({ name, balance: await client.balance(registry, name) })
   ))
   return { accounts, contracts }
 }
