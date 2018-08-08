@@ -1,3 +1,6 @@
+import { Map } from 'immutable'
+import { Registry } from './types'
+
 export const commandName = 'liqdev'
 export const compilerPath = '~/.liqdev/liquidity/_obuild/liquidity/liquidity.asm'
 export const defaultProvider = 'http://127.0.0.1:18731'
@@ -5,6 +8,11 @@ export const defaultProvider = 'http://127.0.0.1:18731'
 export const unitTestExtension = '.utest.json'
 export const integrationTestExtension = '.itest.json'
 export const seed = 0
+
+export const bootstrapRegistry: Registry = {
+  accounts: Map(),
+  contracts: Map()
+}
 
 export const setupPath = {
   local: './lib/setup.sh',

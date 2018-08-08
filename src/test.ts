@@ -8,7 +8,6 @@ import * as readline from 'readline'
 
 import { Client, Compiler, Diff, Key, Path, Sexp, Test, TestCmdParams } from './types'
 
-import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
@@ -19,14 +18,18 @@ function diffJson (
   return _diffJson(a, b)
 }
 
-async function runUnitTest (client: Client, michelsonFile: Path, testData: Test.Unit): Promise<Test.Unit.State> {
+async function runUnitTest (client: Client, michelsonFile: Path, test: Test.Unit): Promise<Test.Unit.State> {
+  let registry = config.bootstrapRegistry
+  for (let account of test.initial.accounts) {
+    registry = await client.implicit(registry, account.name, 'bootstrap1', account.balance)
+  }
   // TODO
   // let contract = await deploy(client, testAccount.sk, contractFile, testData.initialStorage)
   // return call(client, contract, testAccount.sk, data.callParams)
   return Object()
 }
 
-async function runIntegrationTest (client: Client, testData: Test.Integration): Promise<Test.Integration.State> {
+async function runIntegrationTest (client: Client, test: Test.Integration): Promise<Test.Integration.State> {
   // TODO
   return Object()
 }

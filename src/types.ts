@@ -22,7 +22,7 @@ export interface Client {
     amount: number
   ): Promise<CallResult>
   implicit (registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>
-  originate (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
+  // originate (registry: Registry, name: Name, originator: Name, balance: number): Promise<Registry>
   transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
   balance (registry: Registry, account: Name): Promise<number>
   storage (registry: Registry, contract: Name): Promise<StorageResult>
@@ -58,6 +58,7 @@ export type TestCmdParams = {
 }
 
 export namespace Test {
+  // TODO: type Account = Implicit | Originated
   export interface Account {
     name: Name
     balance: number
