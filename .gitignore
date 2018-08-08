@@ -67,4 +67,4 @@ liquidity/
 *.liq.init.tz
 
 # Remove this later
-test.js
+test.ignore.js
