@@ -13,8 +13,8 @@ import { KeyGen } from './keygen'
 import { diffJson as _diffJson } from 'diff'
 
 // Sketchy workaround because diffJson TypeErrors if either input is undefined
-const diffJson = (
-  a: any, b: any, { replaceUndefinedWithNull } = { replaceUndefinedWithNull: true }) => {
+function diffJson (
+  a: any, b: any, { replaceUndefinedWithNull } = { replaceUndefinedWithNull: true }) {
   if (replaceUndefinedWithNull && a === undefined) a = null
   if (replaceUndefinedWithNull && b === undefined) b = null
   return _diffJson(a, b)
@@ -32,7 +32,7 @@ async function runIntegrationTest (eztz: EZTZ, testData: Test.Integration): Prom
   return Object()
 }
 
-const diffToString = (diff: Diff) => {
+function diffToString (diff: Diff) {
   let s = ''
   for (let part of diff) {
     let color = part.added
@@ -45,7 +45,7 @@ const diffToString = (diff: Diff) => {
   return s
 }
 
-const diffIsEmpty = (diff: Diff) => {
+function diffIsEmpty (diff: Diff) {
   for (let part of diff) {
     if (part.added || part.removed) return false
   }
@@ -54,22 +54,15 @@ const diffIsEmpty = (diff: Diff) => {
 
 const rl = readline.createInterface(process.stdin, process.stdout)
 
-const promptYesNo = async (prompt: string, { defaultValue }: { defaultValue: boolean }) => {
-  let loop = (resolve: any) => { // too lazy to write out the type for resolve
-    rl.question(prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): '), input => {
-      if (input === '') {
-        resolve(defaultValue)
-      } else if (input.toLowerCase() === 'y') {
-        resolve(true)
-      } else if (input.toLowerCase() === 'n') {
-        resolve(false)
-      } else {
-        console.log("Please enter 'y' or 'n'")
-        loop(resolve)
-      }
-    })
+async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: boolean }) {
+  while (1) {
+    let input = await new Promise<string>((resolve, _) => rl.question(prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): '), resolve))
+    if (input === '') return defaultValue
+    if (input.toLowerCase() === 'y') return true
+    if (input.toLowerCase() === 'n') return false
+    console.log("Please enter 'y' or 'n'")
   }
-  return new Promise<boolean>((resolve, _) => { loop(resolve) })
+  throw new Error('unreachable')
 }
 
 async function genUnitTestData (
