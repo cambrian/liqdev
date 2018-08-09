@@ -35,7 +35,8 @@ async function runUnitTest (
       registry,
       name,
       config.bootstrapAccount as Name,
-      balance as MuTez)
+      balance as MuTez
+    )
   }
   registry = await client.deploy(
     registry,
@@ -149,6 +150,12 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
 
 // Provide helpful defaults to the test writer.
 async function readUnitTestFile (file: Path) {
+  // check that the contract file exists
+  const michelsonFile = (_.trimEnd(file, config.unitTestExtension) + '.tz') as Path
+  if (!await fs.pathExists(michelsonFile)) {
+    throw Error('"' + michelsonFile + '" not found for test "' + file + '".')
+  }
+  // read test data and provide default values
   const tests: Test.Unit[] = await fs.readJson(file)
   for (const test of tests) {
     if (!test.initial.balance) test.initial.balance = 0
@@ -159,7 +166,7 @@ async function readUnitTestFile (file: Path) {
     if (!test.call.amount) test.call.amount = 0
     if (!test.call.caller) test.call.caller = config.bootstrapAccount as Name
   }
-  return tests
+  return { tests, michelsonFile }
 }
 
 // Provide helpful defaults to the test writer.
@@ -180,13 +187,10 @@ async function readIntegrationTestFile (file: Path) {
   return test
 }
 
-async function genUnitTestData (
-  client: Client,
-  testFilePairs: { michelsonFile: Path, testFile: Path }[]
-) {
-  for (const { michelsonFile, testFile } of testFilePairs) {
+async function genUnitTestData (client: Client, testFiles: Path[]) {
+  for (const testFile of testFiles) {
     await genTestData(testFile, async () => {
-      const tests = await readUnitTestFile(testFile)
+      const { tests, michelsonFile } = await readUnitTestFile(testFile)
       for (const test of tests) {
         test.expected = await runUnitTest(client, michelsonFile, test)
       }
@@ -230,13 +234,10 @@ function mochaTest (name: string, { expected, actual }: { expected: any, actual:
   })
 }
 
-async function unitTestSuite (
-  client: Client,
-  testFilePairs: { michelsonFile: Path, testFile: Path }[]
-) {
+async function unitTestSuite (client: Client, testFiles: Path[]) {
   const suite = new Mocha.Suite('Unit Tests')
-  for (const { michelsonFile, testFile } of testFilePairs) {
-    const tests = await readUnitTestFile(testFile)
+  for (const testFile of testFiles) {
+    const { tests, michelsonFile } = await readUnitTestFile(testFile)
     const s = new Mocha.Suite(testFile)
     for (const test of tests) {
       const actual = await runUnitTest(client, michelsonFile, test)
@@ -276,23 +277,19 @@ export async function test (
     integration = true
   }
   const files = await glob(globPattern)
-  const contractFiles = _.filter(files, f => f.endsWith('.liq'))
+  const contractFiles = files.filter(f => f.endsWith('.liq'))
   for (let contractFile of contractFiles) compile(contractFile as Path)
 
-  const unitTestFiles = _.filter(files, f => f.endsWith(config.unitTestExtension))
-  const unitTestFilePairs = _.map(unitTestFiles, testFile => ({
-    testFile: testFile as Path,
-    michelsonFile: (_.trimEnd(testFile, config.unitTestExtension) + '.tz') as Path
-  }))
-  const integrationTestFiles = _.map(_.filter(files, f =>
-    f.endsWith(config.integrationTestExtension)), f => f as Path)
+  const unitTestFiles = files.filter(f => f.endsWith(config.unitTestExtension)) as Path[]
+  const integrationTestFiles =
+    files.filter(f => f.endsWith(config.integrationTestExtension)) as Path[]
 
   if (generate) {
-    if (unit) await genUnitTestData(client, unitTestFilePairs)
+    if (unit) await genUnitTestData(client, unitTestFiles)
     if (integration) await genIntegrationTestData(client, integrationTestFiles)
   } else {
     const mocha = new Mocha()
-    if (unit) mocha.suite.addSuite(await unitTestSuite(client, unitTestFilePairs))
+    if (unit) mocha.suite.addSuite(await unitTestSuite(client, unitTestFiles))
     if (integration) mocha.suite.addSuite(await integrationTestSuite(client, integrationTestFiles))
     await new Promise((resolve, _) => mocha.run(resolve))
   }
