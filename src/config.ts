@@ -9,7 +9,7 @@ export const defaultProvider = 'http://127.0.0.1:18731'
 
 export const unitTestExtension = '.utest.json'
 export const integrationTestExtension = '.itest.json'
-export const clientWait = 250
+export const clientWait = 0.25
 export const seed = 0
 
 export const bootstrapAccounts = {

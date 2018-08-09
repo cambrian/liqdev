@@ -6,7 +6,6 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as path from 'path'
 import * as readline from 'readline'
-import * as util from 'util'
 
 import { Client, Compiler, Diff, MuTez, Name, Path, Sexp, Test, TestCmdParams } from './types'
 
@@ -55,7 +54,7 @@ async function runUnitTest (
     test.call.params,
     test.call.amount as MuTez
   )
-  await sleep(0.25) // Because eztz.send doesn't wait for its transaction to be confirmed.
+  await sleep(config.clientWait) // Because eztz.send doesn't wait for its transaction to be confirmed.
 
   // Get final state.
   const balance = await client.balance(registry, contractName) // Get this from .call?
@@ -96,7 +95,7 @@ async function runIntegrationTest (
   // Make contract calls.
   for (const { amount, caller, contract, params } of test.calls) {
     await client.call(registry, caller, contract, params, amount as MuTez)
-    await sleep(0.25) // eztz.send doesn't wait for its transaction to be confirmed
+    await sleep(config.clientWait) // eztz.send doesn't wait for its transaction to be confirmed
   }
 
   // Get final state.
