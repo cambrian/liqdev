@@ -1,0 +1,22 @@
+[
+  {
+    "name": "test1",
+    "initial": {
+      "storage": "0",
+      "balance": 0,
+      "accounts": []
+    },
+    "call": {
+      "params": null,
+      "amount": 0,
+      "caller": "bootstrap1"
+    },
+    "expected": {
+      "storage": {
+        "int": "1"
+      },
+      "balance": 0,
+      "accounts": []
+    }
+  }
+]

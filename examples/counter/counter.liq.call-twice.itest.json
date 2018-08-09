@@ -1,0 +1,50 @@
+{
+  "initial": {
+    "accounts": [
+      {
+        "name": "test",
+        "balance": 100
+      }
+    ],
+    "contracts": [
+      {
+        "name": "counter",
+        "file": "./counter.liq",
+        "storage": "0",
+        "balance": 0
+      }
+    ]
+  },
+  "calls": [
+    {
+      "caller": "test",
+      "contract": "counter",
+      "params": null,
+      "amount": 0
+    },
+    {
+      "caller": "test",
+      "contract": "counter",
+      "params": null,
+      "amount": 0
+    }
+  ],
+  "expected": {
+    "accounts": [
+      {
+        "name": "test",
+        "balance": 100
+      }
+    ],
+    "contracts": [
+      {
+        "name": "counter",
+        "file": "./counter.liq",
+        "balance": 0,
+        "storage": {
+          "int": "2"
+        }
+      }
+    ]
+  }
+}
