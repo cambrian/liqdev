@@ -129,10 +129,10 @@ function transfer (eztz: EZTZ) {
 
 // TODO: Look into Tez unit differences.
 function balance (eztz: EZTZ) {
-  return async (registry: Registry, account: Name): Promise<number> => {
-    const accountKeys = registry.accounts.get(account)
-    if (!accountKeys) throw Error('account name ' + account + ' not found')
-    return eztz.rpc.getBalance(accountKeys.pkh)
+  return (registry: Registry, account: Name): Promise<number> => {
+    const keys = findPKH(registry, account)
+    if (!keys) throw Error('account name ' + account + ' not found')
+    return eztz.rpc.getBalance(keys)
   }
 }
 
