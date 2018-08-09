@@ -5,10 +5,10 @@ import { eztz } from 'eztz';
 export declare type Account = eztz.Keys;
 export declare type CallResult = eztz.contract.SendResult;
 export interface Client {
-    deploy(registry: Registry, name: Name, deployer: Name, contractFile: Path, storage: Sexp, balance: number): Promise<Registry>;
-    call(registry: Registry, caller: Name, contract: Name, parameters: Sexp, amount: number): Promise<CallResult>;
-    implicit(registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>;
-    transfer(registry: Registry, from: Name, to: Name, amount: number): Promise<void>;
+    deploy(registry: Registry, name: Name, deployer: Name, contractFile: Path, storage: Sexp, balance: MuTez): Promise<Registry>;
+    call(registry: Registry, caller: Name, contract: Name, parameters: Sexp, amount: MuTez): Promise<CallResult>;
+    implicit(registry: Registry, name: Name, creator: Name, balance: MuTez): Promise<Registry>;
+    transfer(registry: Registry, from: Name, to: Name, amount: MuTez): Promise<void>;
     balance(registry: Registry, account: Name): Promise<number>;
     storage(registry: Registry, contract: Name): Promise<StorageResult>;
 }
@@ -17,6 +17,7 @@ export declare type Diff = JsDiff.IDiffResult[];
 export declare type EZTZ = typeof eztz;
 export declare type Key = eztz.Key;
 export declare type KeyHash = eztz.KeyHash;
+export declare type MuTez = eztz.MuTez;
 export declare type Name = string;
 export declare type Path = string;
 export interface Registry {
@@ -77,4 +78,5 @@ export declare namespace Test {
         expected: Integration.State;
     }
 }
+export declare type Tez = eztz.Tez;
 export declare type TezosClient = (command: string) => ExecOutputReturnValue;

@@ -14,7 +14,7 @@ export interface Client {
     deployer: Name,
     contractFile: Path,
     storage: Sexp,
-    balance: number
+    balance: MuTez
   ): Promise<Registry>
 
   call (
@@ -22,10 +22,10 @@ export interface Client {
     caller: Name,
     contract: Name,
     parameters: Sexp,
-    amount: number
+    amount: MuTez
   ): Promise<CallResult>
 
-  implicit (registry: Registry, name: Name, creator: Name, balance: number): Promise<Registry>
+  implicit (registry: Registry, name: Name, creator: Name, balance: MuTez): Promise<Registry>
 
   // originate (
   //   registry: Registry,
@@ -34,7 +34,7 @@ export interface Client {
   //   balance: number
   // ): Promise<Registry>
 
-  transfer (registry: Registry, from: Name, to: Name, amount: number): Promise<void>
+  transfer (registry: Registry, from: Name, to: Name, amount: MuTez): Promise<void>
 
   balance (registry: Registry, account: Name): Promise<number>
 
@@ -50,6 +50,8 @@ export type EZTZ = typeof eztz
 export type Key = eztz.Key
 
 export type KeyHash = eztz.KeyHash
+
+export type MuTez = eztz.MuTez
 
 export type Name = string // Type for name on the Tezos blockchain for accounts and contracts.
 
@@ -125,5 +127,7 @@ export namespace Test {
     expected: Integration.State
   }
 }
+
+export type Tez = eztz.Tez
 
 export type TezosClient = (command: string) => ExecOutputReturnValue

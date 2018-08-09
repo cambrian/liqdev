@@ -2,6 +2,9 @@
 
 declare module 'eztz' {
   namespace eztz {
+    type Tez = number
+    type MuTez = number
+
     type Key = string
     type KeyHash = string
     interface Keys {
@@ -48,6 +51,10 @@ declare module 'eztz' {
         gasLimit: number,
         storageLimit: number
       ) => Promise<void>
+    }
+
+    namespace utility {
+      const totez: (amount: MuTez) => Tez
     }
   }
 }
