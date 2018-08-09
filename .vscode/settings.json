@@ -1,5 +1,6 @@
 {
   "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
   "tslint.enable": true,
   "tslint.autoFixOnSave": true,
   "editor.insertSpaces": true,
