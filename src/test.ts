@@ -1,5 +1,4 @@
 import * as Mocha from 'mocha'
-import * as _ from 'lodash'
 import * as colors from 'colors'
 import * as config from './config'
 import * as fs from 'fs-extra'
@@ -59,7 +58,7 @@ async function runUnitTest (
 
   // Get final state.
   const balance = await client.balance(registry, contractName) // Get this from .call?
-  const accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
+  const accounts = await Promise.all(test.initial.accounts.map(async ({ name }) =>
     ({ name, balance: await client.balance(registry, name) })
   ))
   // @ts-ignore Gnarly way to get storage from call result without having to call client.storage.
@@ -100,10 +99,10 @@ async function runIntegrationTest (
   }
 
   // Get final state.
-  const accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
+  const accounts = await Promise.all(test.initial.accounts.map(async ({ name }) =>
     ({ name, balance: await client.balance(registry, name) })
   ))
-  const contracts = await Promise.all(_.map(test.initial.contracts, async ({ name, file }) =>
+  const contracts = await Promise.all(test.initial.contracts.map(async ({ name, file }) =>
     ({
       name,
       file,
@@ -151,7 +150,7 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
 // Provide helpful defaults to the test writer.
 async function readUnitTestFile (file: Path) {
   // check that the contract file exists
-  const michelsonFile = (_.trimEnd(file, config.unitTestExtension) + '.tz') as Path
+  const michelsonFile = (file.slice(0, -config.unitTestExtension.length) + '.tz') as Path
   if (!await fs.pathExists(michelsonFile)) {
     throw Error('"' + michelsonFile + '" not found for test "' + file + '".')
   }
