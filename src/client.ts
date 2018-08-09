@@ -49,7 +49,7 @@ function clientAlias (
 }
 
 function deploy (tezosClient: TezosClient) {
-  return async (
+  return (
     registry: Registry,
     name: Name,
     deployer: Name,
@@ -69,14 +69,14 @@ function deploy (tezosClient: TezosClient) {
     const contractAddress = result.stdout.slice(0, -1)
 
     if (contractAddress.length === 0) throw new Error('contract deploy failed')
-    return updateContracts(registry, registry.contracts.set(name, contractAddress))
+    return Promise.resolve(updateContracts(registry, registry.contracts.set(name, contractAddress)))
   }
 }
 
 // Eventually you will be able to
 // specify a different entry point.
 function call (eztz: EZTZ) {
-  return async (
+  return (
     registry: Registry,
     caller: Name,
     contract: Name,
@@ -117,7 +117,7 @@ function implicit (
 }
 
 function transfer (eztz: EZTZ) {
-  return async (registry: Registry, from: Name, to: Name, amount: number): Promise<void> => {
+  return (registry: Registry, from: Name, to: Name, amount: number): Promise<void> => {
     const fromKeys = registry.accounts.get(from)
     const toPKH = findPKH(registry, to)
 
@@ -125,22 +125,21 @@ function transfer (eztz: EZTZ) {
     if (!toPKH) throw Error('to name ' + to + ' not found')
 
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    await eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, amount, 0, null, 100000, 0)
-    return
+    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, amount, 0, null, 100000, 0)
   }
 }
 
 // TODO: Look into Tez unit differences.
 function balance (eztz: EZTZ) {
-  return async (registry: Registry, account: Name): Promise<number> => {
-    const accountKeys = registry.accounts.get(account)
-    if (!accountKeys) throw Error('account name ' + account + ' not found')
-    return eztz.rpc.getBalance(accountKeys.pkh)
+  return (registry: Registry, account: Name): Promise<number> => {
+    const keys = findPKH(registry, account)
+    if (!keys) throw Error('account name ' + account + ' not found')
+    return eztz.rpc.getBalance(keys)
   }
 }
 
 function storage (eztz: EZTZ) {
-  return async (registry: Registry, contract: Name): Promise<StorageResult> => {
+  return (registry: Registry, contract: Name): Promise<StorageResult> => {
     const contractPKH = registry.contracts.get(contract)
     if (!contractPKH) throw Error('contract name ' + contract + ' not found')
     return eztz.contract.storage(contractPKH)

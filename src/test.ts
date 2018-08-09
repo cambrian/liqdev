@@ -1,10 +1,10 @@
-import * as I from 'immutable'
 import * as Mocha from 'mocha'
 import * as _ from 'lodash'
 import * as colors from 'colors'
 import * as config from './config'
 import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
+import * as path from 'path'
 import * as readline from 'readline'
 
 import { Client, Compiler, Diff, Path, Test, TestCmdParams } from './types'
@@ -19,6 +19,8 @@ function diffJson (
   if (replaceUndefinedWithNull && b === undefined) b = null
   return _diffJson(a, b)
 }
+
+const sleep = (seconds: number) => new Promise<void>((r, _) => setTimeout(r, seconds * 1000))
 
 async function runUnitTest (
   client: Client,
@@ -45,7 +47,7 @@ async function runUnitTest (
   )
 
   // Call contract from bootstrap account.
-  const storage = await client.call(
+  const result = await client.call(
     registry,
     config.bootstrapAccount,
     contractName,
@@ -58,11 +60,15 @@ async function runUnitTest (
   const accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
     ({ name, balance: await client.balance(registry, name) })
   ))
+  // @ts-ignore gnarly way to get storage from call result without having to call client.storage
+  const storage = result.operations[result.operations.length - 1].metadata.operation_result.storage
   return { storage, balance, accounts }
 }
 
+// Needs [dir] because contract paths are specified relative to the test file directory
 async function runIntegrationTest (
   client: Client,
+  dir: Path,
   test: Test.Integration
 ): Promise<Test.Integration.State> {
   // Setup.
@@ -79,15 +85,19 @@ async function runIntegrationTest (
       registry,
       name,
       config.bootstrapAccount,
-      file,
-      storage as string, // Sus.
+      path.join(dir, file + '.tz'), // Sus.
+      storage as string, // Also sus.
       balance
     )
   }
 
   // Make contract calls.
   for (const { amount, caller, contract, params } of test.calls) {
-    await client.call(registry, caller, contract, params, amount)
+    for (let i = 0; i < 10; i++) {
+      console.log({ amount, caller, contract, params })
+      let result = await client.call(registry, caller, contract, params, amount)
+      console.log(result)
+    }
   }
 
   // Get final state.
@@ -140,7 +150,7 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
 }
 
 // provide helpful defaults to the test writer
-async function readUnitTestData (file: Path) {
+async function readUnitTestFile (file: Path) {
   const tests: Test.Unit[] = await fs.readJson(file)
   for (const test of tests) {
     if (!test.initial.balance) test.initial.balance = 0
@@ -155,7 +165,7 @@ async function readUnitTestData (file: Path) {
 }
 
 // provide helpful defaults to the test writer
-async function readIntegrationTestData (file: Path) {
+async function readIntegrationTestFile (file: Path) {
   const test: Test.Integration = await fs.readJson(file)
   if (!test.initial.accounts) test.initial.accounts = []
   for (const account of test.initial.accounts) {
@@ -178,7 +188,7 @@ async function genUnitTestData (
 ) {
   for (const { michelsonFile, testFile } of testFilePairs) {
     await genTestData(testFile, async () => {
-      const tests = await readUnitTestData(testFile)
+      const tests = await readUnitTestFile(testFile)
       for (const test of tests) {
         test.expected = await runUnitTest(client, michelsonFile, test)
       }
@@ -190,8 +200,8 @@ async function genUnitTestData (
 async function genIntegrationTestData (client: Client, testFiles: Path[]) {
   for (const testFile of testFiles) {
     await genTestData(testFile, async () => {
-      const testData = await fs.readJson(testFile)
-      testData.expected = runIntegrationTest(client, testData)
+      const testData = await readIntegrationTestFile(testFile)
+      testData.expected = await runIntegrationTest(client, path.dirname(testFile), testData)
       return testData
     })
   }
@@ -228,7 +238,7 @@ async function unitTestSuite (
 ) {
   const suite = new Mocha.Suite('Unit Tests')
   for (const { michelsonFile, testFile } of testFilePairs) {
-    const tests = await readUnitTestData(testFile)
+    const tests = await readUnitTestFile(testFile)
     const s = new Mocha.Suite(testFile)
     for (const test of tests) {
       const actual = await runUnitTest(client, michelsonFile, test)
@@ -242,8 +252,8 @@ async function unitTestSuite (
 async function integrationTestSuite (client: Client, testFiles: Path[]) {
   const suite = new Mocha.Suite('Integration Tests')
   for (const testFile of testFiles) {
-    const test = await readIntegrationTestData(testFile)
-    const actual = await runIntegrationTest(client, test)
+    const test = await readIntegrationTestFile(testFile)
+    const actual = await runIntegrationTest(client, path.dirname(testFile), test)
     suite.addTest(mochaTest(testFile, { expected: test.expected, actual }))
   }
   return suite
