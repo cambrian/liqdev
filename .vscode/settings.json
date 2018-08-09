@@ -17,5 +17,8 @@
   "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
   "typescript.format.insertSpaceAfterTypeAssertion": true,
   "autoimport.useSemiColon": false,
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.associations": {
+    "*.liq": "ocaml"
+  }
 }
