@@ -6,8 +6,7 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as program from 'commander'
 
-import { MuTez, Name, Path, Sexp, TezosClient } from './types'
-// import { account, balance, call, storage } from './client'
+import { Path, TezosClient } from './types'
 import { createCompiler, startWatcher } from './build'
 
 import { createClient } from './client'
@@ -58,23 +57,6 @@ program
     console.error('Invalid task provided: %s.\nSee --help for available tasks.',
       program.args.join(' '))
     process.exit(1)
-  })
-
-program
-  .command('sanjay')
-  .description('remove this eventually')
-  .action(() => {
-    const client = createClient(eztz, createTezosClient())
-    client.deploy(config.bootstrapRegistry, 'hlorl' as Name, 'bootstrap1' as Name,
-      'helloworld.liq.tz' as Path, '(Pair "hello world" 0)' as Sexp, 0 as MuTez)
-      .then(console.log).catch(console.log)
-    // client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
-    //   .then(async registry => {
-    //     // exec('sleep 2')
-    //     await new Promise((r, _) => setTimeout(r, 250))
-    //     return registry
-    //   })
-    //   .then(registry => client.balance(registry, 'test')).then(console.log)
   })
 
 program

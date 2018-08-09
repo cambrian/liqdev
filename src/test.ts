@@ -271,7 +271,6 @@ export async function test (
   }: TestCmdParams,
   globPattern = '**/*'
 ) {
-  console.log(globPattern)
   if (!unit && !integration) {
     unit = true
     integration = true
