@@ -10,7 +10,7 @@ export OPAMYES=true # Spooky.
 opam init --no-setup --enable-shell-hook
 if [ -d ~/.liqdev/liquidity/tezos/_opam ]
 then
-  echo "Existing liqdev setup found... Keeping tezos ocaml switch."
+  echo "Existing liqdev setup found. Keeping Tezos OCaml switch."
   rm -rf ~/.liqdevtezosopam
   mv ~/.liqdev/liquidity/tezos/_opam ~/.liqdevtezosopam
 fi

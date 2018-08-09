@@ -51,7 +51,7 @@ const verifySandbox = () => {
 }
 
 program
-  .version('0.0.1', '-v, --version')
+  .version('0.2.0', '-v, --version')
   .description('Swiss army knife for Liquidity development')
   .on('command:*', () => {
     console.error('Invalid task provided: %s.\nSee --help for available tasks.',
@@ -87,6 +87,7 @@ program
   .action(() => exec(runGlobally ? config.killPath.global : config.killPath.local))
   .action(() => spawn(runGlobally ? config.bakerPath.global
     : config.bakerPath.local, [], { detached: true, stdio: 'inherit' }).unref())
+  .action(() => exec('sleep 6'))
   .action(() => process.exit(0))
 
 program
