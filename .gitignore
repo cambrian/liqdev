@@ -61,8 +61,6 @@ jspm_packages/
 build/
 
 # Liquidity output
-liquidity/
-*.liq
 *.liq.tz
 *.liq.init.tz
 
