@@ -64,7 +64,7 @@ program
   .command('sanjay')
   .description('remove this eventually')
   .action(() => {
-    const client = createClient(eztz, createTezosClient(), { seed: 20 })
+    const client = createClient(eztz, createTezosClient())
     client.deploy(config.bootstrapRegistry, 'hlorl' as Name, 'bootstrap1' as Name,
       'helloworld.liq.tz' as Path, '(Pair "hello world" 0)' as Sexp, 0 as MuTez)
       .then(console.log).catch(console.log)

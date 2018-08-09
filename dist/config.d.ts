@@ -6,7 +6,7 @@ export declare const tezosClientPath = "~/.liqdev/.tezos-client-path";
 export declare const defaultProvider = "http://127.0.0.1:18731";
 export declare const unitTestExtension = ".utest.json";
 export declare const integrationTestExtension = ".itest.json";
-export declare const clientWait = 250;
+export declare const clientWait = 0.25;
 export declare const seed = 0;
 export declare const bootstrapAccounts: {
     bootstrap1: {

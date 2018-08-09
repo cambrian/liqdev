@@ -1,4 +1,5 @@
 import * as I from 'immutable'
+import * as crypto from 'crypto'
 import * as now from 'nano-time'
 
 import {
@@ -17,7 +18,6 @@ import {
 } from './types'
 
 import { ExecOutputReturnValue } from 'shelljs'
-import { KeyGen } from './keygen'
 
 function updateAccounts (registry: Registry, accounts: I.Map<Name, Account>): Registry {
   return {
@@ -49,6 +49,11 @@ function clientAlias (
   return tezosClient('add address ' + name + ' ' + account.pkh + ' --force')
 }
 
+// Make unique names so successive tests don't stomp on each other
+function uniqueName (name: string) {
+  return name + '-' + now() as Name
+}
+
 function deploy (eztz: EZTZ, tezosClient: TezosClient) {
   return (
     registry: Registry,
@@ -61,18 +66,16 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient) {
     const deployerAccount = registry.accounts.get(deployer)
     if (!deployerAccount) throw new Error('deployer name ' + deployerAccount + ' not found')
 
-    let saltedDeployer = deployer
     // TODO: Fix this special casing later if and when
     // we need to test deploys from other accounts.
     if (deployer.slice(0, 9) !== 'bootstrap') {
-      const saltedDeployer = deployer + '-' + now() // Only for tezos-client internal use.
-      clientAlias(tezosClient, deployerAccount, saltedDeployer as Name)
+      deployer = uniqueName(deployer)
+      clientAlias(tezosClient, deployerAccount, deployer)
     }
 
     // TODO: Make this less brittle, probably using EZTZ.
     const tezBalance = eztz.utility.totez(balance)
-    const saltedName = name + '-' + now() // Only for tezos-client internal use.
-    const contractAddress = tezosClient('originate contract ' + saltedName + ' for ' + saltedDeployer + ' transferring ' + tezBalance.toString() + ' from ' + saltedDeployer +
+    const contractAddress = tezosClient('originate contract ' + uniqueName(name) + ' for ' + deployer + ' transferring ' + tezBalance.toString() + ' from ' + deployer +
       ' running ' + contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
       'tr \' \' \'\n\' | sed -n \'x; $p\'').stdout.slice(0, -1) as KeyHash
 
@@ -106,7 +109,6 @@ function call (eztz: EZTZ) {
 
 function implicit (
   eztz: EZTZ,
-  keyGen: KeyGen,
   transferFn: (registry: Registry, from: Name, to: Name, amount: MuTez) => Promise<void>
 ) {
   return async (
@@ -115,7 +117,7 @@ function implicit (
     creator: Name,
     balance: MuTez
   ): Promise<Registry> => {
-    const account = keyGen.nextAccount()
+    const account = eztz.crypto.generateKeysNoSeed()
     if (registry.accounts.get(name)) throw Error('account name ' + name + ' already exists')
     if (registry.contracts.get(name)) throw Error('account name ' + name + ' shared by a contract')
 
@@ -144,7 +146,7 @@ function balance (eztz: EZTZ) {
   return (registry: Registry, account: Name): Promise<MuTez> => {
     const keys = findPKH(registry, account)
     if (!keys) throw Error('account name ' + account + ' not found')
-    return eztz.rpc.getBalance(keys) as Promise<MuTez>
+    return eztz.rpc.getBalance(keys).then(parseInt) as Promise<MuTez>
   }
 }
 
@@ -158,16 +160,14 @@ function storage (eztz: EZTZ) {
 
 export function createClient (
   eztz: EZTZ,
-  tezosClient: TezosClient,
-  { seed } = { seed: 0 }
+  tezosClient: TezosClient
 ): Client {
   const transferFn = transfer(eztz)
-  const keyGen = new KeyGen(eztz, seed)
 
   return {
     deploy: deploy(eztz, tezosClient),
     call: call(eztz),
-    implicit: implicit(eztz, keyGen, transferFn),
+    implicit: implicit(eztz, transferFn),
     transfer: transferFn,
     balance: balance(eztz),
     storage: storage(eztz)

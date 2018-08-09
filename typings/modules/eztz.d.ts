@@ -38,6 +38,7 @@ declare module 'eztz' {
     namespace crypto {
       const extractKeys: (sk: Key) => Keys
       const generateKeys: (mnemonic: string, passphrase: string) => Keys
+      const generateKeysNoSeed: () => Keys
     }
 
     namespace node {
@@ -45,7 +46,7 @@ declare module 'eztz' {
     }
 
     namespace rpc {
-      const getBalance: (address: KeyHash) => Promise<number>
+      const getBalance: (address: KeyHash) => Promise<string>
       const transfer: (
         from: KeyHash,
         keys: Keys,
