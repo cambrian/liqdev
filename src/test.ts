@@ -20,6 +20,8 @@ function diffJson (
   return _diffJson(a, b)
 }
 
+const sleep = (seconds: number) => new Promise<void>((r, _) => setTimeout(r, seconds * 1000))
+
 async function runUnitTest (
   client: Client,
   michelsonFile: Path,
@@ -91,7 +93,11 @@ async function runIntegrationTest (
 
   // Make contract calls.
   for (const { amount, caller, contract, params } of test.calls) {
-    await client.call(registry, caller, contract, params, amount)
+    for (let i = 0; i < 10; i++) {
+      console.log({ amount, caller, contract, params })
+      let result = await client.call(registry, caller, contract, params, amount)
+      console.log(result)
+    }
   }
 
   // Get final state.
