@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('source-map-support').install()
 
 import * as config from './config'
 import * as fs from 'fs'

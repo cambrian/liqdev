@@ -60,8 +60,10 @@
     "immutable": "^3.8.2",
     "lodash": "^4.17.10",
     "mocha": "^5.2.0",
+    "nano-time": "^1.0.0",
     "seedrandom": "^2.4.3",
     "shelljs": "^0.8.2",
+    "source-map-support": "^0.5.7",
     "tslib": "^1.9.3"
   }
 }
