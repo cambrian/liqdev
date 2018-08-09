@@ -1,4 +1,5 @@
 import * as I from 'immutable'
+import * as now from 'nano-time'
 
 import {
   Account,
@@ -58,9 +59,11 @@ function deploy (tezosClient: TezosClient) {
   ): Promise<Registry> => {
     const deployerAccount = registry.accounts.get(deployer)
     if (!deployerAccount) throw new Error('deployer name ' + deployerAccount + ' not found')
-    clientAlias(tezosClient, deployerAccount, deployer)
+    clientAlias(tezosClient, deployerAccount, deployer) // TODO: Make this idempotent.
 
-    const result = tezosClient('originate contract ' + name + ' for ' + deployer +
+    // TODO: Make this less brittle, probably using EZTZ.
+    const saltedName = name + '-' + now() // Only for tezos-client internal use.
+    const result = tezosClient('originate contract ' + saltedName + ' for ' + deployer +
       ' transferring ' + balance.toString() + ' from ' + deployer + ' running ' + contractFile +
       ' --init \'' + storage + '\' | grep \'New contract\' | tr \' \' \'\n\' | sed -n \'x; $p\'')
     const contractAddress = result.stdout.slice(0, -1)
