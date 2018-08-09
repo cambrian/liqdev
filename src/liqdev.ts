@@ -26,7 +26,7 @@ const createTezosClient = (): TezosClient => {
   const tezosClientPath = fs.readFileSync(config.tezosClientPath.replace(/^~/, os.homedir()))
     .slice(0, -1) // Lmao again (strip new line character).
   return ((command: string) =>
-    exec(tezosClientPath + ' ' + command, { silent: false, async: false })) as TezosClient
+    exec(tezosClientPath + ' ' + command, { silent: true, async: false })) as TezosClient
 }
 
 // Hard-coded but should eventually be an option.
