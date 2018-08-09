@@ -35,7 +35,8 @@ async function runUnitTest (
       registry,
       name,
       config.bootstrapAccount as Name,
-      balance as MuTez)
+      balance as MuTez
+    )
   }
   registry = await client.deploy(
     registry,
