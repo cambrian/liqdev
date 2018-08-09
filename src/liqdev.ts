@@ -22,7 +22,7 @@ const runGlobally = process.argv[1] === globalBinPath + '/' + config.commandName
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
 
 // Not called directly to defer its
-// execution (only test needs this)
+// execution (only test needs this).
 const createTezosClient = (): TezosClient => {
   const tezosClientPath = fs.readFileSync(config.tezosClientPath.replace(/^~/, os.homedir()))
     .slice(0, -1) // Lmao again (strip new line character).

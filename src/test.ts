@@ -28,7 +28,7 @@ async function runUnitTest (
   test: Test.Unit
 ): Promise<Test.Unit.State> {
   const contractName = michelsonFile + ':' + test.name
-  // Setup
+  // Setup.
   let registry = config.bootstrapRegistry
   for (const { name, balance } of test.initial.accounts) {
     registry = await client.implicit(
@@ -60,7 +60,7 @@ async function runUnitTest (
   const accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
     ({ name, balance: await client.balance(registry, name) })
   ))
-  // @ts-ignore gnarly way to get storage from call result without having to call client.storage
+  // @ts-ignore Gnarly way to get storage from call result without having to call client.storage.
   const storage = result.operations[result.operations.length - 1].metadata.operation_result.storage
   return { storage, balance, accounts }
 }
@@ -149,7 +149,7 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
   throw new Error('unreachable')
 }
 
-// provide helpful defaults to the test writer
+// Provide helpful defaults to the test writer.
 async function readUnitTestFile (file: Path) {
   const tests: Test.Unit[] = await fs.readJson(file)
   for (const test of tests) {
@@ -164,7 +164,7 @@ async function readUnitTestFile (file: Path) {
   return tests
 }
 
-// provide helpful defaults to the test writer
+// Provide helpful defaults to the test writer.
 async function readIntegrationTestFile (file: Path) {
   const test: Test.Integration = await fs.readJson(file)
   if (!test.initial.accounts) test.initial.accounts = []
