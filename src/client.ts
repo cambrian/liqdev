@@ -1,5 +1,4 @@
 import * as I from 'immutable'
-import * as crypto from 'crypto'
 import * as now from 'nano-time'
 
 import {
