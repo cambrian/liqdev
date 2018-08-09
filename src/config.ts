@@ -23,7 +23,7 @@ export const bootstrapAccounts = {
 export const bootstrapRegistry: Registry = {
   accounts: Map(bootstrapAccounts),
   contracts: Map()
-}
+} as Registry
 
 export const setupPath = {
   local: './lib/setup.sh',

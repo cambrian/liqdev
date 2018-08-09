@@ -6,17 +6,17 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as program from 'commander'
 
+import { MuTez, Name, Path, Sexp, TezosClient } from './types'
 // import { account, balance, call, storage } from './client'
 import { createCompiler, startWatcher } from './build'
 
-import { TezosClient } from './types'
 import { createClient } from './client'
 import { exec } from 'shelljs'
 import { eztz } from 'eztz'
 import { spawn } from 'child_process'
 import { test } from './test'
 
-const compile = createCompiler(config.compilerPath)
+const compile = createCompiler(config.compilerPath as Path)
 const globalBinPath = exec('npm bin -g', { silent: true }).stdout.toString().slice(0, -1) // Lmao.
 const runGlobally = process.argv[1] === globalBinPath + '/' + config.commandName
 console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.')
@@ -26,7 +26,7 @@ console.log('Running all scripts ' + (runGlobally ? 'globally' : 'locally') + '.
 const createTezosClient = (): TezosClient => {
   const tezosClientPath = fs.readFileSync(config.tezosClientPath.replace(/^~/, os.homedir()))
     .slice(0, -1) // Lmao again (strip new line character).
-  return (command: string) => exec(tezosClientPath + ' ' + command)
+  return ((command: string) => exec(tezosClientPath + ' ' + command)) as TezosClient
 }
 
 // Hard-coded but should eventually be an option.
@@ -64,7 +64,9 @@ program
   .description('remove this eventually')
   .action(() => {
     const client = createClient(eztz, createTezosClient(), { seed: 20 })
-    client.deploy(config.bootstrapRegistry, 'hlorl', 'bootstrap1', 'helloworld.liq.tz', '(Pair "hello world" 0)', 0).then(console.log).catch(console.log)
+    client.deploy(config.bootstrapRegistry, 'hlorl' as Name, 'bootstrap1' as Name,
+      'helloworld.liq.tz' as Path, '(Pair "hello world" 0)' as Sexp, 0 as MuTez)
+      .then(console.log).catch(console.log)
     // client.implicit(config.bootstrapRegistry, 'test', 'bootstrap1', 1337)
     //   .then(async registry => {
     //     // exec('sleep 2')
@@ -101,7 +103,7 @@ program
   .description('compile Liquidity contracts (omit parameter to watch)')
   .action(verifySetup)
   .action((contract) => contract
-    ? compile(contract + '.liq') && process.exit(0)
+    ? compile((contract + '.liq') as Path) && process.exit(0)
     : startWatcher(compile))
 
 program

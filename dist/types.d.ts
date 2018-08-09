@@ -2,6 +2,9 @@
 import * as I from 'immutable';
 import { ExecOutputReturnValue } from 'shelljs';
 import { eztz } from 'eztz';
+class Nominal<T extends string> {
+    private as;
+}
 export declare type Account = eztz.Keys;
 export declare type CallResult = eztz.contract.SendResult;
 export interface Client {
@@ -12,25 +15,25 @@ export interface Client {
     balance(registry: Registry, account: Name): Promise<number>;
     storage(registry: Registry, contract: Name): Promise<StorageResult>;
 }
-export declare type Compiler = (contractPath: Path) => ExecOutputReturnValue;
-export declare type Diff = JsDiff.IDiffResult[];
+export declare type Compiler = ((contractPath: Path) => ExecOutputReturnValue) & Nominal<'Compiler'>;
+export declare type Diff = JsDiff.IDiffResult[] & Nominal<'Diff'>;
 export declare type EZTZ = typeof eztz;
 export declare type Key = eztz.Key;
 export declare type KeyHash = eztz.KeyHash;
 export declare type MuTez = eztz.MuTez;
-export declare type Name = string;
-export declare type Path = string;
+export declare type Name = string & Nominal<'Name'>;
+export declare type Path = string & Nominal<'Path'>;
 export interface Registry {
     accounts: I.Map<Name, Account>;
     contracts: I.Map<Name, KeyHash>;
 }
-export declare type Sexp = string;
+export declare type Sexp = string & Nominal<'Sexp'>;
 export declare type StorageResult = eztz.contract.StorageResult;
-export declare type TestCmdParams = {
+export interface TestCmdParams {
     generate: boolean;
     unit: boolean;
     integration: boolean;
-};
+}
 export declare namespace Test {
     interface Account {
         name: Name;
@@ -79,4 +82,5 @@ export declare namespace Test {
     }
 }
 export declare type Tez = eztz.Tez;
-export declare type TezosClient = (command: string) => ExecOutputReturnValue;
+export declare type TezosClient = ((command: string) => ExecOutputReturnValue) & Nominal<'TezosClient'>;
+export {};

@@ -4,7 +4,7 @@ import { exec } from 'shelljs'
 import { watch } from 'chokidar'
 
 export function createCompiler (compilerPath: Path): Compiler {
-  return (contractPath: Path) => exec(compilerPath + ' ' + contractPath)
+  return ((contractPath: Path) => exec(compilerPath + ' ' + contractPath)) as Compiler
 }
 
 export function startWatcher (compile: Compiler) {

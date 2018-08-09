@@ -3,6 +3,11 @@ import * as I from 'immutable'
 import { ExecOutputReturnValue } from 'shelljs'
 import { eztz } from 'eztz'
 
+class Nominal<T extends string> {
+  // @ts-ignore
+  private as: T
+}
+
 export type Account = eztz.Keys
 
 export type CallResult = eztz.contract.SendResult // TODO: See eztz.d.ts.
@@ -41,9 +46,9 @@ export interface Client {
   storage (registry: Registry, contract: Name): Promise<StorageResult>
 }
 
-export type Compiler = (contractPath: Path) => ExecOutputReturnValue
+export type Compiler = ((contractPath: Path) => ExecOutputReturnValue) & Nominal<'Compiler'>
 
-export type Diff = JsDiff.IDiffResult[]
+export type Diff = JsDiff.IDiffResult[] & Nominal<'Diff'>
 
 export type EZTZ = typeof eztz
 
@@ -53,22 +58,23 @@ export type KeyHash = eztz.KeyHash
 
 export type MuTez = eztz.MuTez
 
-export type Name = string // Type for name on the Tezos blockchain for accounts and contracts.
+// Type for name on the Tezos blockchain for accounts and contracts.
+export type Name = string & Nominal<'Name'>
 
-export type Path = string
+export type Path = string & Nominal<'Path'>
 
 export interface Registry {
   accounts: I.Map<Name, Account>
   contracts: I.Map<Name, KeyHash>
 }
 
-export type Sexp = string
+export type Sexp = string & Nominal<'Sexp'>
 
 export type StorageResult = eztz.contract.StorageResult
 
-export type TestCmdParams = {
-  generate: boolean,
-  unit: boolean,
+export interface TestCmdParams {
+  generate: boolean
+  unit: boolean
   integration: boolean
 }
 
@@ -130,4 +136,4 @@ export namespace Test {
 
 export type Tez = eztz.Tez
 
-export type TezosClient = (command: string) => ExecOutputReturnValue
+export type TezosClient = ((command: string) => ExecOutputReturnValue) & Nominal<'TezosClient'>

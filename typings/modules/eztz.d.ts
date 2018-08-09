@@ -1,12 +1,17 @@
 /** Stub declaration file for EZTZ. TODO: Fill in completely. */
 
 declare module 'eztz' {
-  namespace eztz {
-    type Tez = number
-    type MuTez = number
+  class Nominal<T extends string> {
+    // @ts-ignore
+    private as: T
+  }
 
-    type Key = string
-    type KeyHash = string
+  namespace eztz {
+    type Tez = number & Nominal<'Tez'>
+    type MuTez = number & Nominal<'MuTez'>
+
+    type Key = string & Nominal<'Key'>
+    type KeyHash = string & Nominal<'KeyHash'>
     interface Keys {
       sk?: Key
       pk?: Key
@@ -15,8 +20,8 @@ declare module 'eztz' {
 
     namespace contract {
       // TODO: Flesh this type out.
-      type SendResult = object
-      type StorageResult = object
+      type SendResult = object & Nominal<'SendResult'>
+      type StorageResult = object & Nominal<'StorageResult'>
       const send: (
         contract: KeyHash,
         fromPKH: KeyHash,

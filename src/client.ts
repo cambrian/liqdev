@@ -46,7 +46,7 @@ function clientAlias (
   account: Account,
   name: Name
 ): ExecOutputReturnValue {
-  return tezosClient('add address ' + name + ' ' + account.pkh)
+  return tezosClient('add address ' + name + ' ' + account.pkh + ' --force')
 }
 
 function deploy (eztz: EZTZ, tezosClient: TezosClient) {
@@ -60,15 +60,21 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient) {
   ): Promise<Registry> => {
     const deployerAccount = registry.accounts.get(deployer)
     if (!deployerAccount) throw new Error('deployer name ' + deployerAccount + ' not found')
-    const saltedDeployer = deployer + '-' + now() // Only for tezos-client internal use.
-    clientAlias(tezosClient, deployerAccount, saltedDeployer)
+
+    let saltedDeployer = deployer
+    // TODO: Fix this special casing later if and when
+    // we need to test deploys from other accounts.
+    if (deployer.slice(0, 9) !== 'bootstrap') {
+      const saltedDeployer = deployer + '-' + now() // Only for tezos-client internal use.
+      clientAlias(tezosClient, deployerAccount, saltedDeployer as Name)
+    }
 
     // TODO: Make this less brittle, probably using EZTZ.
     const tezBalance = eztz.utility.totez(balance)
     const saltedName = name + '-' + now() // Only for tezos-client internal use.
     const contractAddress = tezosClient('originate contract ' + saltedName + ' for ' + saltedDeployer + ' transferring ' + tezBalance.toString() + ' from ' + saltedDeployer +
       ' running ' + contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
-      'tr \' \' \'\n\' | sed - n \'x; $p\'').stdout.slice(0, -1) as KeyHash
+      'tr \' \' \'\n\' | sed -n \'x; $p\'').stdout.slice(0, -1) as KeyHash
 
     if (contractAddress.length === 0) throw new Error('contract deploy failed')
     return Promise.resolve(updateContracts(registry, registry.contracts.set(name, contractAddress)))
@@ -83,7 +89,7 @@ function call (eztz: EZTZ) {
     caller: Name,
     contract: Name,
     parameters: Sexp | null = null,
-    amount: MuTez = 0
+    amount: MuTez = 0 as MuTez
   ): Promise<CallResult> => {
     const callerKeys = registry.accounts.get(caller)
     const contractPKH = registry.contracts.get(contract)
@@ -114,8 +120,7 @@ function implicit (
     if (registry.contracts.get(name)) throw Error('account name ' + name + ' shared by a contract')
 
     const newRegistry = updateAccounts(registry, registry.accounts.set(name, account))
-    const tezBalance = eztz.utility.totez(balance)
-    await transferFn(newRegistry, creator, name, tezBalance)
+    await transferFn(newRegistry, creator, name, balance)
     return newRegistry
   }
 }
@@ -139,7 +144,7 @@ function balance (eztz: EZTZ) {
   return (registry: Registry, account: Name): Promise<MuTez> => {
     const keys = findPKH(registry, account)
     if (!keys) throw Error('account name ' + account + ' not found')
-    return eztz.rpc.getBalance(keys)
+    return eztz.rpc.getBalance(keys) as Promise<MuTez>
   }
 }
 

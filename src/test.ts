@@ -8,7 +8,7 @@ import * as path from 'path'
 import * as readline from 'readline'
 import * as util from 'util'
 
-import { Client, Compiler, Diff, Path, Test, TestCmdParams } from './types'
+import { Client, Compiler, Diff, MuTez, Name, Path, Sexp, Test, TestCmdParams } from './types'
 
 import { diffJson as _diffJson } from 'diff'
 
@@ -28,37 +28,37 @@ async function runUnitTest (
   michelsonFile: Path,
   test: Test.Unit
 ): Promise<Test.Unit.State> {
-  const contractName = michelsonFile + ':' + test.name
+  const contractName = (michelsonFile + ':' + test.name) as Name
   // Setup.
   let registry = config.bootstrapRegistry
   for (const { name, balance } of test.initial.accounts) {
     registry = await client.implicit(
       registry,
       name,
-      config.bootstrapAccount,
-      balance)
+      config.bootstrapAccount as Name,
+      balance as MuTez)
   }
   registry = await client.deploy(
     registry,
     contractName,
-    config.bootstrapAccount,
+    config.bootstrapAccount as Name,
     michelsonFile,
-    test.initial.storage as string, // Sus.
-    test.initial.balance
+    test.initial.storage as Sexp,
+    test.initial.balance as MuTez
   )
 
   // Call contract from bootstrap account.
   const result = await client.call(
     registry,
-    config.bootstrapAccount,
+    config.bootstrapAccount as Name,
     contractName,
     test.call.params,
-    test.call.amount
+    test.call.amount as MuTez
   )
-  await sleep(0.25) // eztz.send doesn't wait for its transaction to be confirmed
+  await sleep(0.25) // Because eztz.send doesn't wait for its transaction to be confirmed.
 
   // Get final state.
-  const balance = await client.balance(registry, contractName) // Can we get this from .call?
+  const balance = await client.balance(registry, contractName) // Get this from .call?
   const accounts = await Promise.all(_.map(test.initial.accounts, async ({ name }) =>
     ({ name, balance: await client.balance(registry, name) })
   ))
@@ -79,23 +79,23 @@ async function runIntegrationTest (
     registry = await client.implicit(
       registry,
       name,
-      config.bootstrapAccount,
-      balance)
+      config.bootstrapAccount as Name,
+      balance as MuTez)
   }
   for (const { name, file, balance, storage } of test.initial.contracts) {
     registry = await client.deploy(
       registry,
       name,
-      config.bootstrapAccount,
-      path.join(dir, file + '.tz'), // Sus.
-      storage as string, // Also sus.
-      balance
+      config.bootstrapAccount as Name,
+      path.join(dir, file + '.tz') as Path,
+      storage as Sexp,
+      balance as MuTez
     )
   }
 
   // Make contract calls.
   for (const { amount, caller, contract, params } of test.calls) {
-    await client.call(registry, caller, contract, params, amount)
+    await client.call(registry, caller, contract, params, amount as MuTez)
     await sleep(0.25) // eztz.send doesn't wait for its transaction to be confirmed
   }
 
@@ -158,7 +158,7 @@ async function readUnitTestFile (file: Path) {
       if (!account.balance) account.balance = 0
     }
     if (!test.call.amount) test.call.amount = 0
-    if (!test.call.caller) test.call.caller = config.bootstrapAccount
+    if (!test.call.caller) test.call.caller = config.bootstrapAccount as Name
   }
   return tests
 }
@@ -176,7 +176,7 @@ async function readIntegrationTestFile (file: Path) {
   }
   for (const call of test.calls) {
     if (!call.amount) call.amount = 0
-    if (!call.caller) call.caller = config.bootstrapAccount
+    if (!call.caller) call.caller = config.bootstrapAccount as Name
   }
   return test
 }
@@ -200,7 +200,7 @@ async function genIntegrationTestData (client: Client, testFiles: Path[]) {
   for (const testFile of testFiles) {
     await genTestData(testFile, async () => {
       const testData = await readIntegrationTestFile(testFile)
-      testData.expected = await runIntegrationTest(client, path.dirname(testFile), testData)
+      testData.expected = await runIntegrationTest(client, path.dirname(testFile) as Path, testData)
       return testData
     })
   }
@@ -211,7 +211,7 @@ async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>
   console.log('Generating new test data for "' + testFile + '"...')
   const proposed = await proposedTestFile()
   console.log('Inspect generated diff. Any changes will be highlighted.')
-  console.log(diffToString(diffJson(current, proposed)))
+  console.log(diffToString(diffJson(current, proposed) as Diff))
   const ok = await promptYesNo('Ok?', { defaultValue: false })
   if (!ok) {
     console.log('Generated data not ok. Preserving old test data for "' + testFile + '".')
@@ -223,7 +223,7 @@ async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>
 
 function mochaTest (name: string, { expected, actual }: { expected: any, actual: any }) {
   return new Mocha.Test(name, () => {
-    const diff = diffJson(expected, actual)
+    const diff = diffJson(expected, actual) as Diff
     if (!diffIsEmpty(diff)) {
       const s = diffToString(diff)
       throw new Error('contract produced nonzero diff with expected storage (red):\n' + s)
@@ -252,7 +252,7 @@ async function integrationTestSuite (client: Client, testFiles: Path[]) {
   const suite = new Mocha.Suite('Integration Tests')
   for (const testFile of testFiles) {
     const test = await readIntegrationTestFile(testFile)
-    const actual = await runIntegrationTest(client, path.dirname(testFile), test)
+    const actual = await runIntegrationTest(client, path.dirname(testFile) as Path, test)
     suite.addTest(mochaTest(testFile, { expected: test.expected, actual }))
   }
   return suite
@@ -279,14 +279,15 @@ export async function test (
   }
   const files = await glob(globPattern)
   const contractFiles = _.filter(files, f => f.endsWith('.liq'))
-  for (let contractFile of contractFiles) compile(contractFile)
+  for (let contractFile of contractFiles) compile(contractFile as Path)
 
   const unitTestFiles = _.filter(files, f => f.endsWith(config.unitTestExtension))
   const unitTestFilePairs = _.map(unitTestFiles, testFile => ({
-    testFile,
-    michelsonFile: _.trimEnd(testFile, config.unitTestExtension) + '.tz'
+    testFile: testFile as Path,
+    michelsonFile: (_.trimEnd(testFile, config.unitTestExtension) + '.tz') as Path
   }))
-  const integrationTestFiles = _.filter(files, f => f.endsWith(config.integrationTestExtension))
+  const integrationTestFiles = _.map(_.filter(files, f =>
+    f.endsWith(config.integrationTestExtension)), f => f as Path)
 
   if (generate) {
     if (unit) await genUnitTestData(client, unitTestFilePairs)
