@@ -6,6 +6,7 @@ import * as fs from 'fs-extra'
 import * as glob from 'glob-promise'
 import * as path from 'path'
 import * as readline from 'readline'
+import * as util from 'util'
 
 import { Client, Compiler, Diff, Path, Test, TestCmdParams } from './types'
 
@@ -54,6 +55,7 @@ async function runUnitTest (
     test.call.params,
     test.call.amount
   )
+  await sleep(0.25) // eztz.send doesn't wait for its transaction to be confirmed
 
   // Get final state.
   const balance = await client.balance(registry, contractName) // Can we get this from .call?
@@ -93,11 +95,8 @@ async function runIntegrationTest (
 
   // Make contract calls.
   for (const { amount, caller, contract, params } of test.calls) {
-    for (let i = 0; i < 10; i++) {
-      console.log({ amount, caller, contract, params })
-      let result = await client.call(registry, caller, contract, params, amount)
-      console.log(result)
-    }
+    await client.call(registry, caller, contract, params, amount)
+    await sleep(0.25) // eztz.send doesn't wait for its transaction to be confirmed
   }
 
   // Get final state.
