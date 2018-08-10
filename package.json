@@ -11,7 +11,7 @@
     "liqdev-setup": "lib/setup.sh"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc && chmod +x dist/liqdev.js && chmod +x lib/*",
+    "build": "rm -rf dist && ./node_modules/.bin/tsc && chmod +x dist/liqdev.js && chmod +x lib/*",
     "clean": "rm -rf dist",
     "lint": "tslint --project tsconfig.json --format stylish",
     "test": "echo"
