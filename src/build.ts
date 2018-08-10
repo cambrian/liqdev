@@ -11,8 +11,8 @@ export function createCompiler (compilerPath: Path): Compiler {
 
 export function startWatcher (compile: Compiler, glob = '**/*.liq') {
   return watch(glob)
-    // For some reason the initial add isn't filtered at all. But we want to filter anyway bc the
-    // user could have globbed some weird stuff
+    // For some reason the initial add isn't filtered at all. But we want to filter anyway
+    // because the user could have globbed some weird stuff.
     .on('add', (file: Path) => {
       if (path.extname(file) !== '.liq') return
       console.log('Compiling new file ' + file + '.')
