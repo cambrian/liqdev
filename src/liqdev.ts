@@ -82,15 +82,13 @@ program
   .action(() => process.exit(0))
 
 program
-  .command('build [contract]')
-  .description('compile Liquidity contracts (omit parameter to watch)')
+  .command('build [glob="**/*"]')
+  .description('compile Liquidity contracts (only compiles .liq files)')
   .action(verifySetup)
-  .action((contract) => contract
-    ? compile((contract + '.liq') as Path) && process.exit(0)
-    : startWatcher(compile))
+  .action((glob) => startWatcher(compile, glob))
 
 program
-  .command('test [glob]')
+  .command('test [glob="**/*]')
   .description('test Liquidity files matching a glob pattern')
   .option('-g, --generate', 'generate or overwrite expected data')
   .option('-u, --unit', 'run only unit tests')
@@ -98,9 +96,6 @@ program
   .action(verifySetup)
   .action(verifySandbox)
   .action((glob, args) => test(compile, createClient(eztz, createTezosClient()), args, glob).then(() => process.exit(0)))
-// Note: Mocha seems to have some spooky bug where it doesn't wait for its tests.
-// Liqdev test gets interrupted mid-test by process.exit(0), so for now we're requiring the user to
-// manually ctrl-c.
 
 program
   .command('deploy')

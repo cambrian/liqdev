@@ -144,7 +144,7 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
     if (input.toLowerCase() === 'n') return false
     console.log("Please enter 'y' or 'n'.")
   }
-  throw new Error('unreachable')
+  throw Error('unreachable')
 }
 
 // Provide helpful defaults to the test writer.
