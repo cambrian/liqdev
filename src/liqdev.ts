@@ -83,7 +83,7 @@ program
 
 program
   .command('build [glob="**/*"]')
-  .description('compile Liquidity contracts (only compiles .liq files)')
+  .description('compile Liquidity contracts in watch mode (only compiles .liq files)')
   .action(verifySetup)
   .action((glob) => startWatcher(compile, glob))
 
