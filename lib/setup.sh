@@ -32,6 +32,9 @@ make -C tezos build-deps
 eval $(opam env --set-switch --switch=$PWD/tezos)
 make -C tezos
 
+# Avoid some spooky errors...
+./tezos/tezos-node identity generate 26
+
 # Configure tezos-sandboxed-node to allow CORS requests.
 sed -i '.bak' -e 's/"$expected_connections"/"$expected_connections" --cors-origin=*/g' tezos/src/bin_node/tezos-sandboxed-node.sh
 

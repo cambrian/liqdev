@@ -58,7 +58,7 @@ async function runUnitTest (
     test.call.params,
     test.call.amount as MuTez
   )
-  await sleep(config.clientWait) // Because eztz.send doesn't wait for its transaction to be confirmed.
+  await sleep(config.clientWait) // Send doesn't wait for its transaction to be confirmed.
 
   // Get final state.
   const balance = await client.balance(registry, contractName) // Get this from .call?

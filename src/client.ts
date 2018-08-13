@@ -75,8 +75,9 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient): Client['deploy'] {
 
     // TODO: Make this less brittle, probably using EZTZ.
     const tezBalance = eztz.utility.totez(balance)
-    const contractAddress = tezosClient('originate contract ' + uniqueName(name) + ' for ' + deployer + ' transferring ' + tezBalance.toString() + ' from ' + deployer +
-      ' running ' + contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
+    const contractAddress = tezosClient('originate contract ' + uniqueName(name) + ' for ' +
+      deployer + ' transferring ' + tezBalance.toString() + ' from ' + deployer + ' running ' +
+      contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
       'tr \' \' \'\n\' | sed -n \'x; $p\'').stdout.slice(0, -1) as KeyHash
 
     if (contractAddress.length === 0) throw new Error('contract deploy failed')
