@@ -89,12 +89,12 @@ export namespace Test {
     name: Name
     file: Path
     balance: number
-    storage: Sexp | object // is a sexp in inital, object in [expected]
+    storage: Sexp | object // Is a sexp in inital, object in [expected].
   }
 
   export namespace Unit {
     export interface State {
-      storage: Sexp | object // is a sexp in inital, object in [expected]
+      storage: Sexp | object // Is a sexp in inital, object in [expected].
       balance: number
       accounts: Account[]
     }
