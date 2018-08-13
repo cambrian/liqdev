@@ -13,6 +13,7 @@ import {
   Registry,
   Sexp,
   StorageResult,
+  Tez,
   TezosClient
 } from './types'
 
@@ -101,8 +102,8 @@ function call (eztz: EZTZ): Client['call'] {
 
     const tezAmount = eztz.utility.totez(amount)
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, tezAmount, parameters, 0,
-      100000, 0)
+    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, tezAmount, parameters,
+      0 as Tez, 100000, 0)
   }
 }
 
@@ -136,7 +137,7 @@ function transfer (eztz: EZTZ): Client['transfer'] {
 
     const tezAmount = eztz.utility.totez(amount)
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, tezAmount, 0, null, 100000, 0)
+    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, tezAmount, 0 as Tez, null, 100000, 0)
   }
 }
 
