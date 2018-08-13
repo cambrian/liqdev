@@ -5,7 +5,7 @@ then
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 brew tap ocaml/ocaml
-brew install git opam@2 libsodium libffi pandoc
+brew install git opam@2 libsodium libffi pandoc libev pkg-config
 export OPAMYES=true # Spooky.
 opam init --no-setup --enable-shell-hook
 if [ -d ~/.liqdev/liquidity/tezos/_opam ]
