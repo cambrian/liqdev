@@ -1,9 +1,14 @@
 {
-  "extends": "tslint-config-standard",
-  "typedef": [
-    true,
-    "call-signature",
-    "parameter",
-    "member-variable-declaration"
-  ]
+  "extends": [
+    "tslint-config-standard",
+    "tslint-eslint-rules"
+  ],
+  "rules": {
+    "typedef": [
+      true,
+      "call-signature",
+      "parameter",
+      "member-variable-declaration"
+    ]
+  }
 }

@@ -1,15 +1,15 @@
 import * as path from 'path'
 
 import { Compiler, Path } from './types'
+import { FSWatcher, watch } from 'chokidar'
 
 import { exec } from 'shelljs'
-import { watch } from 'chokidar'
 
 export function createCompiler (compilerPath: Path): Compiler {
   return ((contractPath: Path) => exec(compilerPath + ' ' + contractPath)) as Compiler
 }
 
-export function startWatcher (compile: Compiler, glob = '**/*.liq') {
+export function startWatcher (compile: Compiler, glob: string = '**/*.liq'): FSWatcher {
   return watch(glob)
     // For some reason the initial add isn't filtered at all. But we want to filter anyway
     // because the user could have globbed some weird stuff.

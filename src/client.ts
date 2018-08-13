@@ -48,12 +48,12 @@ function clientAlias (
   return tezosClient('add address ' + name + ' ' + account.pkh + ' --force')
 }
 
-// Make unique names so successive tests don't stomp on each other
-function uniqueName (name: string) {
+// Make unique names so successive tests don't stomp on each other.
+function uniqueName (name: string): Name {
   return name + '-' + now() as Name
 }
 
-function deploy (eztz: EZTZ, tezosClient: TezosClient) {
+function deploy (eztz: EZTZ, tezosClient: TezosClient): Client['deploy'] {
   return (
     registry: Registry,
     name: Name,
@@ -85,7 +85,7 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient) {
 
 // Eventually you will be able to
 // specify a different entry point.
-function call (eztz: EZTZ) {
+function call (eztz: EZTZ): Client['call'] {
   return (
     registry: Registry,
     caller: Name,
@@ -109,7 +109,7 @@ function call (eztz: EZTZ) {
 function implicit (
   eztz: EZTZ,
   transferFn: (registry: Registry, from: Name, to: Name, amount: MuTez) => Promise<void>
-) {
+): Client['implicit'] {
   return async (
     registry: Registry,
     name: Name,
@@ -126,7 +126,7 @@ function implicit (
   }
 }
 
-function transfer (eztz: EZTZ) {
+function transfer (eztz: EZTZ): Client['transfer'] {
   return (registry: Registry, from: Name, to: Name, amount: MuTez): Promise<void> => {
     const fromKeys = registry.accounts.get(from)
     const toPKH = findPKH(registry, to)
@@ -141,7 +141,7 @@ function transfer (eztz: EZTZ) {
 }
 
 // TODO: Look into Tez unit differences.
-function balance (eztz: EZTZ) {
+function balance (eztz: EZTZ): Client['balance'] {
   return (registry: Registry, account: Name): Promise<MuTez> => {
     const keys = findPKH(registry, account)
     if (!keys) throw Error('account name ' + account + ' not found')
@@ -149,7 +149,7 @@ function balance (eztz: EZTZ) {
   }
 }
 
-function storage (eztz: EZTZ) {
+function storage (eztz: EZTZ): Client['storage'] {
   return (registry: Registry, contract: Name): Promise<StorageResult> => {
     const contractPKH = registry.contracts.get(contract)
     if (!contractPKH) throw Error('contract name ' + contract + ' not found')
