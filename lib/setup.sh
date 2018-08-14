@@ -5,7 +5,7 @@ then
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 brew tap ocaml/ocaml
-brew install git opam@2 libsodium libffi pandoc
+brew install git opam@2 libsodium libffi pandoc libev pkg-config
 export OPAMYES=true # Spooky.
 opam init --no-setup --enable-shell-hook
 if [ -d ~/.liqdev/liquidity/tezos/_opam ]
@@ -31,6 +31,9 @@ sed -i '.bak' -e 's/\~rc3//g' tezos/scripts/version.sh
 make -C tezos build-deps
 eval $(opam env --set-switch --switch=$PWD/tezos)
 make -C tezos
+
+# Avoid some spooky errors...
+./tezos/tezos-node identity generate 26
 
 # Configure tezos-sandboxed-node to allow CORS requests.
 sed -i '.bak' -e 's/"$expected_connections"/"$expected_connections" --cors-origin=*/g' tezos/src/bin_node/tezos-sandboxed-node.sh

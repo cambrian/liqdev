@@ -95,7 +95,8 @@ program
   .option('-i, --integration', 'run only integration tests')
   .action(verifySetup)
   .action(verifySandbox)
-  .action((glob, args) => test(compile, createClient(eztz, createTezosClient()), args, glob).then(() => process.exit(0)))
+  .action((glob, args) => test(compile, createClient(eztz, createTezosClient()), args, glob)
+    .then(() => process.exit(0)))
 
 program
   .command('deploy')

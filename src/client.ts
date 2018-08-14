@@ -13,6 +13,7 @@ import {
   Registry,
   Sexp,
   StorageResult,
+  Tez,
   TezosClient
 } from './types'
 
@@ -48,12 +49,12 @@ function clientAlias (
   return tezosClient('add address ' + name + ' ' + account.pkh + ' --force')
 }
 
-// Make unique names so successive tests don't stomp on each other
-function uniqueName (name: string) {
+// Make unique names so successive tests don't stomp on each other.
+function uniqueName (name: string): Name {
   return name + '-' + now() as Name
 }
 
-function deploy (eztz: EZTZ, tezosClient: TezosClient) {
+function deploy (eztz: EZTZ, tezosClient: TezosClient): Client['deploy'] {
   return (
     registry: Registry,
     name: Name,
@@ -74,8 +75,9 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient) {
 
     // TODO: Make this less brittle, probably using EZTZ.
     const tezBalance = eztz.utility.totez(balance)
-    const contractAddress = tezosClient('originate contract ' + uniqueName(name) + ' for ' + deployer + ' transferring ' + tezBalance.toString() + ' from ' + deployer +
-      ' running ' + contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
+    const contractAddress = tezosClient('originate contract ' + uniqueName(name) + ' for ' +
+      deployer + ' transferring ' + tezBalance.toString() + ' from ' + deployer + ' running ' +
+      contractFile + ' --init \'' + storage + '\' | grep \'New contract\' | ' +
       'tr \' \' \'\n\' | sed -n \'x; $p\'').stdout.slice(0, -1) as KeyHash
 
     if (contractAddress.length === 0) throw new Error('contract deploy failed')
@@ -85,7 +87,7 @@ function deploy (eztz: EZTZ, tezosClient: TezosClient) {
 
 // Eventually you will be able to
 // specify a different entry point.
-function call (eztz: EZTZ) {
+function call (eztz: EZTZ): Client['call'] {
   return (
     registry: Registry,
     caller: Name,
@@ -101,15 +103,15 @@ function call (eztz: EZTZ) {
 
     const tezAmount = eztz.utility.totez(amount)
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, tezAmount, parameters, 0,
-      100000, 0)
+    return eztz.contract.send(contractPKH, callerKeys.pkh, callerKeys, tezAmount, parameters,
+      0 as Tez, 100000, 0)
   }
 }
 
 function implicit (
   eztz: EZTZ,
   transferFn: (registry: Registry, from: Name, to: Name, amount: MuTez) => Promise<void>
-) {
+): Client['implicit'] {
   return async (
     registry: Registry,
     name: Name,
@@ -126,7 +128,7 @@ function implicit (
   }
 }
 
-function transfer (eztz: EZTZ) {
+function transfer (eztz: EZTZ): Client['transfer'] {
   return (registry: Registry, from: Name, to: Name, amount: MuTez): Promise<void> => {
     const fromKeys = registry.accounts.get(from)
     const toPKH = findPKH(registry, to)
@@ -136,12 +138,12 @@ function transfer (eztz: EZTZ) {
 
     const tezAmount = eztz.utility.totez(amount)
     // TODO: Make fee, gas, and storage limits configurable in a world where they matter.
-    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, tezAmount, 0, null, 100000, 0)
+    return eztz.rpc.transfer(fromKeys.pkh, fromKeys, toPKH, tezAmount, 0 as Tez, null, 100000, 0)
   }
 }
 
 // TODO: Look into Tez unit differences.
-function balance (eztz: EZTZ) {
+function balance (eztz: EZTZ): Client['balance'] {
   return (registry: Registry, account: Name): Promise<MuTez> => {
     const keys = findPKH(registry, account)
     if (!keys) throw Error('account name ' + account + ' not found')
@@ -149,7 +151,7 @@ function balance (eztz: EZTZ) {
   }
 }
 
-function storage (eztz: EZTZ) {
+function storage (eztz: EZTZ): Client['storage'] {
   return (registry: Registry, contract: Name): Promise<StorageResult> => {
     const contractPKH = registry.contracts.get(contract)
     if (!contractPKH) throw Error('contract name ' + contract + ' not found')

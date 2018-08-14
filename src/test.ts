@@ -13,7 +13,11 @@ import { diffJson as _diffJson } from 'diff'
 // Sketchy workaround because diffJson TypeErrors
 // if either input is undefined.
 function diffJson (
-  a: any, b: any, { replaceUndefinedWithNull } = { replaceUndefinedWithNull: true }) {
+  a: any,
+  b: any,
+  { replaceUndefinedWithNull }: { replaceUndefinedWithNull: boolean }
+    = { replaceUndefinedWithNull: true }
+): JsDiff.IDiffResult[] {
   if (replaceUndefinedWithNull && a === undefined) a = null
   if (replaceUndefinedWithNull && b === undefined) b = null
   return _diffJson(a, b)
@@ -54,7 +58,7 @@ async function runUnitTest (
     test.call.params,
     test.call.amount as MuTez
   )
-  await sleep(config.clientWait) // Because eztz.send doesn't wait for its transaction to be confirmed.
+  await sleep(config.clientWait) // Send doesn't wait for its transaction to be confirmed.
 
   // Get final state.
   const balance = await client.balance(registry, contractName) // Get this from .call?
@@ -113,7 +117,7 @@ async function runIntegrationTest (
   return { accounts, contracts }
 }
 
-function diffToString (diff: Diff) {
+function diffToString (diff: Diff): string {
   let s = ''
   for (const part of diff) {
     const color = part.added
@@ -126,7 +130,7 @@ function diffToString (diff: Diff) {
   return s
 }
 
-function diffIsEmpty (diff: Diff) {
+function diffIsEmpty (diff: Diff): boolean {
   for (const part of diff) {
     if (part.added || part.removed) return false
   }
@@ -135,7 +139,10 @@ function diffIsEmpty (diff: Diff) {
 
 const rl = readline.createInterface(process.stdin, process.stdout)
 
-async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: boolean }) {
+async function promptYesNo (
+  prompt: string,
+  { defaultValue }: { defaultValue: boolean }
+): Promise<boolean> {
   prompt = prompt + (defaultValue ? ' (y)/n: ' : ' y/(n): ')
   while (1) {
     const input = await new Promise<string>((resolve, _) => rl.question(prompt, resolve))
@@ -148,7 +155,10 @@ async function promptYesNo (prompt: string, { defaultValue }: { defaultValue: bo
 }
 
 // Provide helpful defaults to the test writer.
-async function readUnitTestFile (file: Path) {
+async function readUnitTestFile (file: Path): Promise<{
+  tests: Test.Unit[];
+  michelsonFile: Path;
+}> {
   // check that the contract file exists
   const michelsonFile = (file.slice(0, -config.unitTestExtension.length) + '.tz') as Path
   if (!await fs.pathExists(michelsonFile)) {
@@ -173,7 +183,7 @@ async function readUnitTestFile (file: Path) {
 }
 
 // Provide helpful defaults to the test writer.
-async function readIntegrationTestFile (file: Path) {
+async function readIntegrationTestFile (file: Path): Promise<Test.Integration> {
   const test: Test.Integration = await fs.readJson(file)
   if (!test.initial) throw Error('Missing initial section.')
   if (!test.calls) throw Error('Missing calls section.')
@@ -194,7 +204,7 @@ async function readIntegrationTestFile (file: Path) {
   return test
 }
 
-async function genUnitTestData (client: Client, testFiles: Path[]) {
+async function genUnitTestData (client: Client, testFiles: Path[]): Promise<void> {
   for (const testFile of testFiles) {
     await genTestData(testFile, async () => {
       const { tests, michelsonFile } = await readUnitTestFile(testFile)
@@ -206,7 +216,7 @@ async function genUnitTestData (client: Client, testFiles: Path[]) {
   }
 }
 
-async function genIntegrationTestData (client: Client, testFiles: Path[]) {
+async function genIntegrationTestData (client: Client, testFiles: Path[]): Promise<void> {
   for (const testFile of testFiles) {
     await genTestData(testFile, async () => {
       const testData = await readIntegrationTestFile(testFile)
@@ -216,7 +226,7 @@ async function genIntegrationTestData (client: Client, testFiles: Path[]) {
   }
 }
 
-async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>) {
+async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>): Promise<void> {
   const current = await fs.readJson(testFile)
   console.log('Generating new test data for "' + testFile + '"...')
   const proposed = await proposedTestFile()
@@ -231,7 +241,10 @@ async function genTestData (testFile: Path, proposedTestFile: () => Promise<any>
   }
 }
 
-function mochaTest (name: string, { expected, actual }: { expected: any, actual: any }) {
+function mochaTest (
+  name: string,
+  { expected, actual }: { expected: any, actual: any }
+): Mocha.Test {
   return new Mocha.Test(name, () => {
     const diff = diffJson(expected, actual) as Diff
     if (!diffIsEmpty(diff)) {
@@ -241,7 +254,7 @@ function mochaTest (name: string, { expected, actual }: { expected: any, actual:
   })
 }
 
-async function unitTestSuite (client: Client, testFiles: Path[]) {
+async function unitTestSuite (client: Client, testFiles: Path[]): Promise<Mocha.Suite> {
   const suite = new Mocha.Suite('Unit Tests')
   for (const testFile of testFiles) {
     const { tests, michelsonFile } = await readUnitTestFile(testFile)
@@ -255,7 +268,7 @@ async function unitTestSuite (client: Client, testFiles: Path[]) {
   return suite
 }
 
-async function integrationTestSuite (client: Client, testFiles: Path[]) {
+async function integrationTestSuite (client: Client, testFiles: Path[]): Promise<Mocha.Suite> {
   const suite = new Mocha.Suite('Integration Tests')
   for (const testFile of testFiles) {
     const test = await readIntegrationTestFile(testFile)
@@ -277,8 +290,8 @@ export async function test (
     unit,
     integration
   }: TestCmdParams,
-  globPattern = '**/*'
-) {
+  globPattern: string = '**/*'
+): Promise<void> {
   if (!unit && !integration) {
     unit = true
     integration = true
