@@ -170,7 +170,7 @@ async function readUnitTestFile (file: Path): Promise<{
     if (!initial) throw Error('Missing initial section.')
     if (!call) throw Error('Missing call section.')
     if (!initial.storage) throw Error('Initial storage missing.')
-    if (!call.params) throw Error('Call params missing.')
+    if (call.params === undefined) throw Error('Call params missing.')
     if (!initial.balance) initial.balance = 0
     if (!initial.accounts) initial.accounts = []
     for (const account of initial.accounts) {
@@ -197,7 +197,7 @@ async function readIntegrationTestFile (file: Path): Promise<Test.Integration> {
     if (!contract.balance) contract.balance = 0
   }
   for (const call of test.calls) {
-    if (!call.params) throw Error('Missing call params for' + JSON.stringify(call))
+    if (call.params === undefined) throw Error('Missing call params for' + JSON.stringify(call))
     if (!call.amount) call.amount = 0
     if (!call.caller) call.caller = config.bootstrapAccount as Name
   }
