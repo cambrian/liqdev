@@ -166,18 +166,18 @@ async function readUnitTestFile (file: Path): Promise<{
   }
   // read test data and provide default values
   const tests: Test.Unit[] = await fs.readJson(file)
-  for (const { initial, call } of tests) {
-    if (!initial) throw Error('Missing initial section.')
-    if (!call) throw Error('Missing call section.')
-    if (!initial.storage) throw Error('Initial storage missing.')
-    if (call.params === undefined) throw Error('Call params missing.')
-    if (!initial.balance) initial.balance = 0
-    if (!initial.accounts) initial.accounts = []
-    for (const account of initial.accounts) {
+  for (const test of tests) {
+    if (!test.initial) throw Error('Missing initial section.')
+    if (!test.call) throw Error('Missing call section.')
+    if (test.initial.storage === undefined) throw Error('Initial storage missing.')
+    if (test.call.params === undefined) throw Error('Call params missing.')
+    if (!test.initial.balance) test.initial.balance = 0
+    if (!test.initial.accounts) test.initial.accounts = []
+    for (const account of test.initial.accounts) {
       if (!account.balance) account.balance = 0
     }
-    if (!call.amount) call.amount = 0
-    if (!call.caller) call.caller = config.bootstrapAccount as Name
+    if (!test.call.amount) test.call.amount = 0
+    if (!test.call.caller) test.call.caller = config.bootstrapAccount as Name
   }
   return { tests, michelsonFile }
 }
@@ -193,7 +193,7 @@ async function readIntegrationTestFile (file: Path): Promise<Test.Integration> {
   }
   if (!test.initial.contracts) throw Error('No contracts in integration test data: ' + file)
   for (const contract of test.initial.contracts) {
-    if (!contract.storage) throw Error('Missing contract storage for' + contract.name)
+    if (contract.storage === undefined) throw Error('Missing contract storage for' + contract.name)
     if (!contract.balance) contract.balance = 0
   }
   for (const call of test.calls) {
